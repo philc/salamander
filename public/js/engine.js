@@ -137,12 +137,12 @@ Engine.prototype = {
       var newHead = [snake.head()[0] + headDirection[0],
                      snake.head()[1] + headDirection[1]];
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
-        // TODO Kill the snake!
+        this.killSnakeAtIndex(i);
         continue;
       }
       var cell = this.board.get(newHead[0], newHead[1]);
       if (cell.type == SNAKE) {
-        // TODO Kill the snake!
+        this.killSnakeAtIndex(i);
         continue;
       }
       else {
@@ -182,6 +182,15 @@ Engine.prototype = {
       }
     }
     this.addApples(DESIRED_APPLES - this.totalApples);
+  },
+
+  killSnakeAtIndex: function(index) {
+    var snake = this.snakes[index];
+    this.snakes.splice(index, 1);
+    // Remove the snake's cells
+    GridUtils.iterateAlongArticulations(snake.articulations, function(x, y) {
+      this.board.set(x, y, { type: EMPTY });
+    }.bind(this));
   },
 
   moveSnake: function(snakeId, requestedDirection) {
@@ -229,5 +238,21 @@ var GridUtils = {
     else
       throw "Trying to iterate along diagonal";
   },
+
+  // Iterates through all the points between/along articulations, an array of x-y pairs.
+  // Block is a function that takes two coordinates.
+  iterateAlongArticulations: function(articulations, block) {
+    for (var i = 0; i < articulations.length - 1; i++) {
+      var excludeFirstPoint = (i != 0);
+      this.iterateAlongLine(articulations[i], articulations[i+1], function(x, y) {
+        if (excludeFirstPoint)
+          excludeFirstPoint = false;
+        else
+          block(x, y);
+      });
+    }
+    // Process the final point
+    var lastPoint = articulations[articulations.length - 1];
+    block(lastPoint[0], lastPoint[1]);
   }
 };
