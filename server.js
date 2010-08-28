@@ -1,7 +1,8 @@
 var http = require('http'), 
 		url = require('url'),
 		fs = require('fs'),
-		sys = require('sys');
+		sys = require('sys'),
+		socket = require('./socket_node/');
 
 var PUBLIC_DIR = "/public";
 
@@ -76,3 +77,45 @@ var server = http.createServer(function (req, res) {
 });
  
 server.listen(80);
+
+var io = socket.listen(server);
+
+io.on('connection', function(client){
+    var food = ["apple", "orange", "banana", "candy"];
+    for (var i=0; i < 100; i++) {
+        food.push("food: "+Math.random());
+    }
+    
+    // var interval = setInterval(function() {
+    //     if (food.length > 0) {
+    //         client.send({message: food.pop()});
+    //         if (food.length == 0) {
+    //             clearInterval(interval);//stop sending messages
+    //         }
+    //     } else {
+    //         client.send({message: "no more food"});
+    //     }
+    // },1000);
+    
+    // while (food.length > 0) {
+    //     client.send({message: food.pop()});
+    //     if (food.length == 0) {
+    //         client.send({message: "no more food"});
+    //     }
+    // }
+    
+	//client.send({ buffer: buffer });
+	//client.broadcast({ announcement: client.sessionId + ' connected' });
+
+    client.on('message', function(message){
+        if ("message" in message) {
+            if (message.message === "ping") {
+                client.send({message:"pong"});
+            }
+        }
+    });
+
+	//client.on('disconnect', function(){
+	//	client.broadcast({ announcement: client.sessionId + ' disconnected' });
+	//});
+});

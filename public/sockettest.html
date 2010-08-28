@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Socket Test</title>
+    <script type="text/javascript" src="js/socket/socket.io.js"></script>
+    <script type="text/javascript">
+        io.setPath('js/socket/');
+        
+        var count = 0;
+        
+        var socket = new io.Socket(null, {port: 80});
+        socket.connect();
+        socket.on('message', function(obj){
+            if ('message' in obj){
+                document.getElementById('msg').innerHTML += obj.message + "<br/>";
+            }
+        });
+        var interval = setInterval(function() {
+            if (count < 100) {
+                socket.send({message:"ping"});
+                document.getElementById('msg').innerHTML += "<b>ping:</b>" + "<br/>";
+                count++;
+            }
+            else {
+                clearInterval(interval);
+            }
+        },100)
+    </script>
+</head>
+
+<body>
+    <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="position: fixed; top: 5px; right: 5px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!" /></a>
+    <h1>The Salamander has been let loose</h1>
+    <img src="images/salamander.gif"/>
+    
+    <div id="msg">
+        
+    </div>
+    
+</body>
+
+</html>
