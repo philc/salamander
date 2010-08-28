@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- A harness for tweaking the CSS and aesthetics of snakes displayed in various directions. -->
+<html>
+<head>
+  <title>Snake bodies</title>
+
+  <link rel="stylesheet" href="/styles.css" type="text/css">
+
+  <style type="text/css" media="screen">
+    .cell {
+      width: 10px;
+      height: 10px;
+    }
+    #snakes {
+      display: -webkit-box;
+    }
+
+    .snake {
+      margin: 0 20px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+    }
+
+    .box-left, .box-right {
+      -webkit-box-orient: horizontal;
+    }
+    .box-left {
+      -webkit-box-direction: reverse;
+    }
+    .box-up {
+      -webkit-box-direction: reverse;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="snakes">
+    <div class="snake box-up">
+      <div class="cell up snake1"></div>
+      <div class="cell head up snake1"></div>
+    </div>
+    <div class="snake box-down">
+      <div class="cell down snake2"></div>
+      <div class="cell head down snake2"></div>
+    </div>
+    <div class="snake box-left">
+      <div class="cell left snake3"></div>
+      <div class="cell head left snake3"></div>
+    </div>
+    <div class="snake box-right">
+      <div class="cell right snake4"></div>
+      <div class="cell head right snake4"></div>
+    </div>
+  </div>
+</body>
