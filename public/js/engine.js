@@ -206,6 +206,7 @@ var GridUtils = {
     return [dx == 0 ? dx : dx / Math.abs(dx), dy == 0 ? dy : dy / Math.abs(dy)];
   },
 
+  // Args: block is a function that takes an index
   iterateBetween: function(i1, i2, block) {
     if (i1 < i2)
       for (var i = i1; i <= i2; i++)
@@ -215,6 +216,7 @@ var GridUtils = {
         block(i);
   },
 
+  // Args: block is a function that takes two coordinates.
   iterateAlongLine: function(startPoint, endPoint, block) {
     if (startPoint[0] == endPoint[0])
       this.iterateBetween(startPoint[1], endPoint[1], function(y) {
