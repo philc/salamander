@@ -299,10 +299,10 @@ extend(ServerEngine.prototype, {
 });
 
 
-function ClientEngine(renderedBoard) { this.subinit(renderdBoard); }
+function ClientEngine(renderedBoard) { this.subinit(renderedBoard); }
 extend(ClientEngine.prototype, Engine.prototype);
 extend(ClientEngine.prototype, {
-  subinit: function() {
+  subinit: function(renderedBoard) {
     this.init(renderedBoard);
   },
 
