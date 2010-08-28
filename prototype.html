@@ -9,9 +9,12 @@
 
   <script>
     $(document).ready(function() {
-      window.board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, $("#board"));
+      board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, $("#board"));
       engine = new Engine(window.board);
-      
+      engine.addSnake("snake1", 0, 1, 0, 0);
+      engine.addSnake("snake1", 2, 0, 2, 2);
+      // engine.addSnake("snake2", 1, 2, 1, 1);
+
       // for (var i = 6; i < 15; i++)
       //         board.drawCell(i, 7, "playerOne");
     });
@@ -33,6 +36,9 @@
     }
     #board .apple {
       background-color: red;
+    }
+    #board .snake {
+      background-color: blue;
     }
     .playerOne {
       background-color: orange;

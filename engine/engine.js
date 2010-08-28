@@ -1,4 +1,11 @@
 
+// Top-level utility functions
+Function.prototype.bind = function(self) {
+  var fn = this;
+  return function() { fn.apply(self, arguments); };
+}
+
+
 // Board cell types
 EMPTY = 0;
 APPLE = 1;
@@ -17,7 +24,7 @@ Board.prototype = {
     }
   },
 
-  // Cell is object with fields: type, snake_id, orientation(?)
+  // Cell is object with fields: type, snakeId, orientation(?)
   get: function(x, y) {
     return this.matrix[x][y];
   },
@@ -38,9 +45,11 @@ Snake.prototype = {
     this.size = 1;
     this.desiredSize = this.size;
     this.requestedMove = null;
-  }
+  },
 
-  
+  computeDirection: function() {
+    
+  }
 };
 
 
@@ -56,7 +65,7 @@ Engine.prototype = {
     this.snakes = [];
     this.totalApples = 0;
 
-    this.addApples(DESIRED_APPLES);
+    // this.addApples(DESIRED_APPLES);
   },
 
   addApples: function(numApples) {
@@ -71,8 +80,19 @@ Engine.prototype = {
     }
   },
 
-  addSnake: function() {
-    
+  addSnake: function(snakeId, headX, headY, tailX, tailY) {
+    var snake = new Snake();
+    if (headX != headY && tailX != tailY)
+      throw "Trying to add diagonal snake";
+    GridUtils.iterateAlongLine(headX, headY, tailX, tailY, function(x, y) {
+      if (this.board.get(x, y).type != EMPTY)
+        throw "Trying to add snake to occupied cell";
+      this.board.set(x, y, {type: SNAKE, snakeId: snakeId});
+      snake.size += 1;
+    }.bind(this));
+    snake.articulations = [[headX, headY], [tailX, tailY]];
+    snake.desiredSize = snake.size;
+    this.snakes.push(snake);
   },
 
   start: function() {
@@ -85,5 +105,30 @@ Engine.prototype = {
       // Move snake's tail
     }
     this.board.addApples(DESIRED_APPLES - this.board.totalApples);
+  }
+};
+
+var GridUtils = {
+  iterateAlongLine: function(x1, y1, x2, y2, block) {
+    if (x1 == x2)
+      this.iterateBetween(y1, y2, function(y) {
+        block(x1, y);
+      });
+    else if (y1 == y2)
+      this.iterateBetween(x1, x2, function(x) {
+        console.log("calling block");
+        block(x, y1);
+      });
+    else
+      throw "Trying to iterate along diagonal";
+  },
+
+  iterateBetween: function(i1, i2, block) {
+    if (i1 < i2)
+      for (var i = i1; i <= i2; i++)
+        block(i);
+    else
+      for (var i = i1; i >= i2; i--)
+        block(i);
   }
 };
