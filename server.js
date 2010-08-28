@@ -93,8 +93,7 @@ var clients = {};//map of all clients to gameClient objects
 
 io.on('connection', function(client){
   clients[client] = new protocol.GameClient(client);
-  clients[client].receive = function(data) {this.send("pong");};
-
+  
 	//client.send({ buffer: buffer });
 	//client.broadcast({ announcement: client.sessionId + ' connected' });
 
