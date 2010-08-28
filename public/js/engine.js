@@ -104,18 +104,19 @@ Engine.prototype = {
     }
   },
 
-  addSnake: function(snakeId, headX, headY, tailX, tailY) {
+  // Args: head and tail are x,y pairs
+  addSnake: function(snakeId, head, tail) {
     var snake = new Snake();
-    if (headX != tailX && headY != tailY)
+    if (head[0] != tail[0] && head[1] != tail[1])
       throw "Trying to add diagonal snake";
-    GridUtils.iterateAlongLine(headX, headY, tailX, tailY, function(x, y) {
+    GridUtils.iterateAlongLine(head, tail, function(x, y) {
       if (this.board.get(x, y).type != EMPTY)
         throw "Trying to add snake to occupied cell";
       this.board.set(x, y, {type: SNAKE, snakeId: snakeId});
       snake.size += 1;
     }.bind(this));
     snake.snakeId = snakeId;
-    snake.articulations = [[headX, headY], [tailX, tailY]];
+    snake.articulations = [head, tail];
     snake.desiredSize = snake.size;
     this.snakes.push(snake);
   },
@@ -214,16 +215,17 @@ var GridUtils = {
         block(i);
   },
 
-  iterateAlongLine: function(x1, y1, x2, y2, block) {
-    if (x1 == x2)
-      this.iterateBetween(y1, y2, function(y) {
-        block(x1, y);
+  iterateAlongLine: function(startPoint, endPoint, block) {
+    if (startPoint[0] == endPoint[0])
+      this.iterateBetween(startPoint[1], endPoint[1], function(y) {
+        block(endPoint[0], y);
       });
-    else if (y1 == y2)
-      this.iterateBetween(x1, x2, function(x) {
-        block(x, y1);
+    else if (startPoint[1] == endPoint[1])
+      this.iterateBetween(startPoint[0], endPoint[0], function(x) {
+        block(x, endPoint[1]);
       });
     else
       throw "Trying to iterate along diagonal";
+  },
   }
 };

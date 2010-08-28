@@ -11,8 +11,8 @@
     $(document).ready(function() {
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, $("#board"));
       engine = new Engine(window.board);
-      engine.addSnake("snake1", 5, 1, 1, 1);
-      engine.addSnake("snake2", 0, 5, 0, 0);
+      engine.addSnake("snake1", [5, 1], [1, 1]);
+      engine.addSnake("snake2", [0, 5], [0, 0]);
       engine.start();
 
       // Arrow key control code
