@@ -8,9 +8,8 @@ function extend(hashA, hashB) {
  * The board renders the state of the game, including all HTML effects.
  */
 function Board(boardElement) {
-  console.log(boardElement);
   this.divsize = 20;
-  this.boardElement = boardElement
+  this.boardElement = $(boardElement);
   this.divs = this.createDivs(20, 20, this.boardElement);
 }
 
@@ -21,11 +20,11 @@ extend(Board.prototype, {
     for (var x = 0; x < width; x++) {
       divs[x] = [];
       for (var y = 0; y < height; y++) {
-        var div = document.createElement("div");
-        div.className = "cell";
-        div.style.left = (this.divsize * x) + "px";
-        div.style.top = (this.divsize * y) + "px";
-        boardElement.appendChild(div);
+        var div = $(document.createElement("div"));
+        div.addClass("cell");
+        div.css("left", this.divsize * x);
+        div.css("top", this.divsize * y);
+        boardElement.append(div);
         divs[x][y] = div;
       }
     }

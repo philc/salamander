@@ -3,12 +3,13 @@
 <head>
   <title>Salamander</title>
 
+  <script src="jquery-1.4.2.js"></script>
   <script src="board.js"></script>
 
   <script>
-    function begin() {
-      new Board(document.getElementById("board"));
-    }
+    $(document).ready(function() {
+      window.board = new Board($("#board"));
+    });
   </script>
 
   <style type="text/css" media="screen">
@@ -29,7 +30,7 @@
 
 </head>
 
-<body onload="begin()">
+<body>
   <div id="board"></div>
 </body>
 </html>
