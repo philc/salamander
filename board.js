@@ -11,16 +11,16 @@ function RenderedBoard(width, height, boardElement) {
   this.divsize = 20;
   this.boardElement = $(boardElement);
   this.divs = this.createDivs(width, height, this.boardElement);
-  this.TYPE_TO_CLASS = ["empty", "apple", "snake"];
+  this.TYPE_TO_CLASS = ["empty", "apple", "snake", "snakeHead"];
 }
 
 extend(RenderedBoard.prototype, {
   set: function(x, y, cell) {
-    this.drawCell(x, y, this.TYPE_TO_CLASS[cell.type]);
+    this.drawCell(x, y, [this.TYPE_TO_CLASS[cell.type], cell.snakeId]);
   },
 
-  drawCell: function(x, y, className) {
-    this.divs[x][y][0].className = className;
+  drawCell: function(x, y, classNames) {
+    this.divs[x][y][0].className = classNames.join(" ");
   },
 
   /* Creates and returns a widthxheight matrix of divs representing the game's surface. */
@@ -30,7 +30,6 @@ extend(RenderedBoard.prototype, {
       divs[x] = [];
       for (var y = 0; y < height; y++) {
         var div = $(document.createElement("div"));
-        div.addClass("cell");
         div.css("left", this.divsize * x);
         div.css("top", this.divsize * y);
         boardElement.append(div);

@@ -10,6 +10,7 @@ Function.prototype.bind = function(self) {
 EMPTY = 0;
 APPLE = 1;
 SNAKE = 2;
+SNAKE_HEAD = 3;
 
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
@@ -30,7 +31,7 @@ Board.prototype = {
   },
 
   set: function(x, y, cell) {
-    this.matrix[x][y] = cell; 
+    this.matrix[x][y] = cell;
     if (this.renderedBoard) {
       this.renderedBoard.set(x, y, cell);
     }
@@ -43,10 +44,12 @@ Snake.prototype = {
   init: function() {
     this.snakeId = null;
     this.articulations = [];
-    this.size = 1;
+    this.size = 10;
     this.desiredSize = this.size;
     this.requestedMove = null;
   },
+
+  head: function() { return this.articulations[0]; },
 
   // Returns direction as a pair of x,y deltas (e.g. [-1,0]).
   computeHeadDirection: function() {
@@ -129,8 +132,9 @@ Engine.prototype = {
       var snake = this.snakes[i];
       // Move snake's head
       var headDirection = snake.requestedMove || snake.computeHeadDirection();
-      var newHead = [snake.articulations[0][0] + headDirection[0],
-                     snake.articulations[0][1] + headDirection[1]];
+      var oldHead = snake.head();
+      var newHead = [snake.head()[0] + headDirection[0],
+                     snake.head()[1] + headDirection[1]];
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
         // TODO Kill the snake!
         continue;
@@ -145,7 +149,8 @@ Engine.prototype = {
           snake.eatApple();
           this.totalApples -= 1;
         }
-        this.board.set(newHead[0], newHead[1], { type: SNAKE, snakeId: snake.snakeId });
+        this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId });
+        this.board.set(newHead[0], newHead[1], { type: SNAKE_HEAD, snakeId: snake.snakeId });
         if (snake.requestedMove) { // The snake has turned
           snake.articulations = [newHead].concat(snake.articulations);
         }
