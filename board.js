@@ -7,19 +7,20 @@ function extend(hashA, hashB) {
 /*
  * The board renders the state of the game, including all HTML effects.
  */
-function Board(boardElement) {
+function RenderedBoard(width, height, boardElement) {
   this.divsize = 20;
   this.boardElement = $(boardElement);
-  this.divs = this.createDivs(20, 20, this.boardElement);
+  this.divs = this.createDivs(width, height, this.boardElement);
+  this.TYPE_TO_CLASS = ["empty", "apple", "snake"];
 }
 
-extend(Board.prototype, {
-  drawCell: function(x, y, className) {
-    this.divs[x][y].addClass(className);
+extend(RenderedBoard.prototype, {
+  set: function(x, y, cell) {
+    this.drawCell(x, y, this.TYPE_TO_CLASS[cell.type]);
   },
 
-  clearCell: function(x, y, className) {
-    this.divs[x][y].removeClass(className);
+  drawCell: function(x, y, className) {
+    this.divs[x][y][0].className = className;
   },
 
   /* Creates and returns a widthxheight matrix of divs representing the game's surface. */
