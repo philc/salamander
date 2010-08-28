@@ -227,3 +227,5 @@ var GridUtils = {
     return [dx == 0 ? dx : dx / Math.abs(dx), dy == 0 ? dy : dy / Math.abs(dy)];
   }
 };
+
+exports.Engine = Engine;
