@@ -16,7 +16,12 @@ function RenderedBoard(width, height, cellSize, boardElement) {
 
 extend(RenderedBoard.prototype, {
   set: function(x, y, cell) {
-    this.drawCell(x, y, [this.TYPE_TO_CLASS[cell.type], cell.snakeId]);
+    var classes = [this.TYPE_TO_CLASS[cell.type], cell.snakeId];
+    if (cell.direction)
+      classes.push(cell.direction);
+    if (cell.segment)
+      classes.push(cell.segment);
+    this.drawCell(x, y, classes);
   },
 
   drawCell: function(x, y, classNames) {

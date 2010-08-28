@@ -5,12 +5,10 @@ Function.prototype.bind = function(self) {
   return function() { fn.apply(self, arguments); };
 }
 
-
 // Board cell types
 EMPTY = 0;
 APPLE = 1;
 SNAKE = 2;
-SNAKE_HEAD = 3;
 
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
@@ -149,8 +147,9 @@ Engine.prototype = {
           snake.eatApple();
           this.totalApples -= 1;
         }
-        this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId });
-        this.board.set(newHead[0], newHead[1], { type: SNAKE_HEAD, snakeId: snake.snakeId });
+        this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "body" });
+        this.board.set(newHead[0], newHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "head",
+            direction: GridUtils.vectorToString(headDirection) });
         if (snake.requestedMove) { // The snake has turned
           snake.articulations = [newHead].concat(snake.articulations);
         }
@@ -229,6 +228,18 @@ var GridUtils = {
     else
       for (var i = i1; i >= i2; i--)
         block(i);
+  },
+
+  /*
+   * Takes a vector of the form [x, y] and converts that to a human-readable direction string. Returns one of
+   * left, right, down, up, none.
+  */
+  vectorToString:function(vector) {
+    if (vector[0] != 0)
+      return vector[0] < 0 ? "left" : "right";
+    else if (vector[1] != 0)
+      return vector[1] < 0 ? "up" : "down";
+    return "none";
   },
 
   computeDirection: function(endPoint, startPoint) {
