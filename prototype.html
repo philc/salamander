@@ -5,12 +5,15 @@
 
   <script src="jquery-1.4.2.js"></script>
   <script src="board.js"></script>
+  <script src="engine/engine.js"></script>
 
   <script>
     $(document).ready(function() {
-      window.board = new Board($("#board"));
-      for (var i = 6; i < 15; i++)
-        board.drawCell(i, 7, "playerOne");
+      window.board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, $("#board"));
+      engine = new Engine(window.board);
+      
+      // for (var i = 6; i < 15; i++)
+      //         board.drawCell(i, 7, "playerOne");
     });
   </script>
 
@@ -21,12 +24,15 @@
       border: 10px solid #ddd;
       position: relative;
     }
-    .cell {
+    #board div {
       position: absolute;
       background-color: #eee;
       border: 1px solid #bbb;
       width: 20px;
       height: 20px;
+    }
+    #board .apple {
+      background-color: red;
     }
     .playerOne {
       background-color: orange;
