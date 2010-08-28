@@ -33,6 +33,14 @@ Board.prototype = {
     if (this.renderedBoard) {
       this.renderedBoard.set(x, y, cell);
     }
+  },
+
+  setMatrix: function(matrix) {
+    this.matrix = matrix;
+    for(var i = 0; i < matrix.length; i++)
+      for(var j = 0; j < matrix[0].length; j++)
+        if (this.renderedBoard)
+          this.renderedBoard.set(i, j, matrix[i][j]);
   }
 };
 
@@ -69,7 +77,26 @@ Snake.prototype = {
         requestedDirection[1] * currentDirection[1] == 0) {
       this.requestedMove = requestedDirection;
     }
+  },
+
+  serialize: function() {
+    return {
+      snakeId: this.snakeId,
+      articulations: this.articulations,
+      size: this.size,
+      desiredSize: this.desiredSize,
+      requestedMove: this.requestedMove
+    };
   }
+};
+Snake.deserialize = function(data) {
+  var snake = new Snake();
+  this.snakeId = data.snakeId;
+  this.articulations = data.articulations;
+  this.size = data.size;
+  this.desiredSize = data.desiredSize;
+  this.requestedMove = data.requestedMove;
+  return snake;
 };
 
 
