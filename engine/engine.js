@@ -76,6 +76,7 @@ Snake.prototype = {
 BOARD_WIDTH = 20;
 BOARD_HEIGHT = 20;
 DESIRED_APPLES = 3;
+TURN_DURATION = 250;
 
 function Engine(renderedBoard) { this.init(renderedBoard); }
 Engine.prototype = {
@@ -101,7 +102,7 @@ Engine.prototype = {
 
   addSnake: function(snakeId, headX, headY, tailX, tailY) {
     var snake = new Snake();
-    if (headX != headY && tailX != tailY)
+    if (headX != tailX && headY != tailY)
       throw "Trying to add diagonal snake";
     GridUtils.iterateAlongLine(headX, headY, tailX, tailY, function(x, y) {
       if (this.board.get(x, y).type != EMPTY)
@@ -119,7 +120,7 @@ Engine.prototype = {
     setTimeout(function() {
       this.processTurn();
       this.start();
-    }.bind(this), 1000);
+    }.bind(this), TURN_DURATION);
   },
 
   processTurn: function() {
