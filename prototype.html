@@ -11,9 +11,18 @@
     $(document).ready(function() {
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, $("#board"));
       engine = new Engine(window.board);
-      engine.addSnake("snake1", 2, 1, 1, 1);
-      engine.addSnake("snake2", 0, 1, 0, 0);
+      engine.addSnake("snake1", 12, 11, 8, 11);
+      // engine.addSnake("snake2", 0, 1, 0, 0);
       engine.start();
+
+      // Arrow key control code
+      KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // LURD
+      $(document).keydown(function(e) {
+        direction = KEYCODE_TO_DIRECTION[e.keyCode];
+        if (direction) {
+          engine.moveSnake("snake1", direction);
+        }
+      });
 
       // for (var i = 6; i < 15; i++)
       //         board.drawCell(i, 7, "playerOne");
