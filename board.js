@@ -14,6 +14,14 @@ function Board(boardElement) {
 }
 
 extend(Board.prototype, {
+  drawCell: function(x, y, className) {
+    this.divs[x][y].addClass(className);
+  },
+
+  clearCell: function(x, y, className) {
+    this.divs[x][y].removeClass(className);
+  },
+
   /* Creates and returns a widthxheight matrix of divs representing the game's surface. */
   createDivs: function(width, height, boardElement) {
     var divs = [];
