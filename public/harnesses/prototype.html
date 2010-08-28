@@ -3,9 +3,10 @@
 <head>
   <title>Salamander</title>
 
-  <script src="public/js/jquery-1.4.2.js"></script>
-  <script src="public/js/rendered_board.js"></script>
-  <script src="public/js/engine.js"></script>
+  <script src="/js/jquery-1.4.2.js"></script>
+  <script src="/js/rendered_board.js"></script>
+  <script src="/js/engine.js"></script>
+  <link rel="stylesheet" href="/styles.css" type="text/css">
 
   <script>
     $(document).ready(function() {
@@ -39,41 +40,6 @@
       return style;
     }
   </script>
-
-  <style type="text/css" media="screen">
-    .debug #board {
-      border: 10px solid #ddd;
-    }
-    .debug #board div {
-      background-color: #eee;
-      border: 1px solid #bbb;
-    }
-    #board {
-      width: 400px;
-      height: 400px;
-      position: relative;
-      background-color: #ddd;
-    }
-    #board div {
-      position: absolute;
-    }
-    #board .apple {
-      background-color: red;
-    }
-    #board .snake {
-      background-color: blue;
-    }
-    #board .snake1 { background-color: green; }
-    #board .snake2 { background-color: orange; }
-    #board .snakeHead { background-color : black; }
-    #hud {
-      position: fixed;
-      right: 20px;
-      width: 200px;
-      height: 200px;
-      top: 20px;
-    }
-  </style>
 
 </head>
 

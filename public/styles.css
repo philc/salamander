@@ -1,0 +1,39 @@
+#debug-board#board {
+  border: 10px solid #ddd;
+}
+#debug-board div {
+  border: 1px solid #bbb;
+}
+#board {
+  border: 1px solid #ddd;
+  width: 400px;
+  height: 400px;
+  position: relative;
+}
+#board div {
+  position: absolute;
+}
+.apple {
+  background-color: red;
+}
+.snake1 { background-color: #87071c; }
+.snake2 { background-color: #3280ba; }
+.snake3 { background-color: #ba5535; }
+.snake4 { background-color: #3f873d; }
+
+.head { background-image: url(/images/head.png); }
+
+.left { -webkit-transform: rotate(-90deg); }
+.right { -webkit-transform: rotate(90deg); }
+.down { -webkit-transform: rotate(180deg); }
+
+/*
+ * Heads up display. 
+ */
+#hud {
+  position: fixed;
+  right: 20px;
+  width: 200px;
+  height: 200px;
+  top: 20px;
+}
