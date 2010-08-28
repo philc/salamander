@@ -82,10 +82,10 @@ var server = http.createServer(function (req, res) {
  
 server.listen(80);
 
-var engine = new Engine(null);
-engine.addSnake("snake1", 5, 1, 1, 1);
-engine.addSnake("snake2", 0, 5, 0, 0);
-engine.start();
+// var engine = new Engine(null);
+// engine.addSnake("snake1", 5, 1, 1, 1);
+// engine.addSnake("snake2", 0, 5, 0, 0);
+// engine.start();
 
 var io = socket.listen(server);
 

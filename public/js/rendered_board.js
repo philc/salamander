@@ -1,9 +1,3 @@
-function extend(hashA, hashB) {
-  for (var key in hashB)
-    hashA[key] = hashB[key];
-  return hashA;
-}
-
 /*
  * The board renders the state of the game, including all HTML effects.
  */
