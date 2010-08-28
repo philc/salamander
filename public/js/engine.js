@@ -76,8 +76,8 @@ Snake.prototype = {
 
 
 // Default values
-BOARD_WIDTH = 20;
-BOARD_HEIGHT = 20;
+BOARD_WIDTH = 40;
+BOARD_HEIGHT = 40;
 DESIRED_APPLES = 3;
 TURN_DURATION = 250;
 

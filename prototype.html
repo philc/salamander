@@ -9,7 +9,10 @@
 
   <script>
     $(document).ready(function() {
-      board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, $("#board"));
+      var cellSize = 10;
+      addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
+
+      board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
       engine = new Engine(window.board);
       engine.addSnake("snake1", 5, 1, 1, 1);
       engine.addSnake("snake2", 0, 5, 0, 0);
@@ -23,6 +26,16 @@
           engine.moveSnake("snake1", direction);
       });
     });
+
+    function addPageStyle(css, head) {
+      var style;
+      head = head || document.getElementsByTagName("head")[0];
+      style = document.createElement("style");
+      style.type = "text/css";
+      style.appendChild(document.createTextNode(css));
+      head.appendChild(style);
+      return style;
+    }
   </script>
 
   <style type="text/css" media="screen">
@@ -41,8 +54,6 @@
     }
     #board div {
       position: absolute;
-      width: 20px;
-      height: 20px;
     }
     #board .apple {
       background-color: red;
