@@ -11,7 +11,7 @@ function RenderedBoard(width, height, boardElement) {
   this.divsize = 20;
   this.boardElement = $(boardElement);
   this.divs = this.createDivs(width, height, this.boardElement);
-  this.TYPE_TO_CLASS = ["empty", "apple", "snake"];
+  this.TYPE_TO_CLASS = ["empty", "apple", "snake", "snakeHead"];
 }
 
 extend(RenderedBoard.prototype, {
