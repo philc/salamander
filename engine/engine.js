@@ -26,7 +26,6 @@ Board.prototype = {
 
   // Cell is object with fields: type, snakeId, orientation(?)
   get: function(x, y) {
-    console.log(this,x,y);
     return this.matrix[x][y];
   },
 
@@ -61,6 +60,14 @@ Snake.prototype = {
 
   eatApple: function() {
     // TODO
+  },
+
+  requestMove: function(requestedDirection) {
+    var currentDirection = this.computeHeadDirection();
+    if (requestedDirection[0] * currentDirection[0] +
+        requestedDirection[1] * currentDirection[1] == 0) {
+      this.requestedMove = requestedDirection;
+    }
   }
 };
 
@@ -122,7 +129,6 @@ Engine.prototype = {
       var headDirection = snake.requestedMove || snake.computeHeadDirection();
       var newHead = [snake.articulations[0][0] + headDirection[0],
                      snake.articulations[0][1] + headDirection[1]];
-      console.log("processTurn", snake, newHead, headDirection);
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
         // TODO Kill the snake!
         continue;
@@ -166,6 +172,15 @@ Engine.prototype = {
       }
     }
     this.addApples(DESIRED_APPLES - this.board.totalApples);
+  },
+
+  moveSnake: function(snakeId, requestedDirection) {
+    for (var i = 0; i < this.snakes.length; i++) {
+      var snake = this.snakes[i];
+      if (snake.snakeId == snakeId) {
+        snake.requestMove(requestedDirection);
+      }
+    }
   }
 };
 
