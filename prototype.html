@@ -11,9 +11,9 @@
     $(document).ready(function() {
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, $("#board"));
       engine = new Engine(window.board);
-      engine.addSnake("snake1", 0, 1, 0, 0);
-      engine.addSnake("snake1", 2, 0, 2, 2);
-      // engine.addSnake("snake2", 1, 2, 1, 1);
+      engine.addSnake("snake1", 2, 1, 1, 1);
+      engine.addSnake("snake2", 0, 1, 0, 0);
+      engine.start();
 
       // for (var i = 6; i < 15; i++)
       //         board.drawCell(i, 7, "playerOne");
