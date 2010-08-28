@@ -122,9 +122,8 @@ Engine.prototype = {
   },
 
   start: function() {
-    setTimeout(function() {
+    this.interval = setInterval(function() {
       this.processTurn();
-      this.start();
     }.bind(this), TURN_DURATION);
   },
 
