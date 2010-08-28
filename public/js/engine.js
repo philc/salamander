@@ -199,17 +199,10 @@ var GridUtils = {
            point[1] < 0 || point[1] >= height;
   },
 
-  iterateAlongLine: function(x1, y1, x2, y2, block) {
-    if (x1 == x2)
-      this.iterateBetween(y1, y2, function(y) {
-        block(x1, y);
-      });
-    else if (y1 == y2)
-      this.iterateBetween(x1, x2, function(x) {
-        block(x, y1);
-      });
-    else
-      throw "Trying to iterate along diagonal";
+  computeDirection: function(endPoint, startPoint) {
+    var dx = endPoint[0] - startPoint[0];
+    var dy = endPoint[1] - startPoint[1];
+    return [dx == 0 ? dx : dx / Math.abs(dx), dy == 0 ? dy : dy / Math.abs(dy)];
   },
 
   iterateBetween: function(i1, i2, block) {
@@ -221,9 +214,16 @@ var GridUtils = {
         block(i);
   },
 
-  computeDirection: function(endPoint, startPoint) {
-    var dx = endPoint[0] - startPoint[0];
-    var dy = endPoint[1] - startPoint[1];
-    return [dx == 0 ? dx : dx / Math.abs(dx), dy == 0 ? dy : dy / Math.abs(dy)];
+  iterateAlongLine: function(x1, y1, x2, y2, block) {
+    if (x1 == x2)
+      this.iterateBetween(y1, y2, function(y) {
+        block(x1, y);
+      });
+    else if (y1 == y2)
+      this.iterateBetween(x1, x2, function(x) {
+        block(x, y1);
+      });
+    else
+      throw "Trying to iterate along diagonal";
   }
 };
