@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Salamander</title>
+
+  <script src="/js/jquery-1.4.2.js"></script>
+  <script src="/js/rendered_board.js"></script>
+  <script src="/js/engine.js"></script>
+  <link rel="stylesheet" href="/styles.css" type="text/css">
+
+  <script>
+    $(document).ready(function() {
+      var cellSize = 10;
+      addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
+
+      board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
+      engine = new Engine(window.board);
+      engine.addSnake("snake1", [5, 1], [1, 1]);
+      engine.addSnake("snake2", [0, 5], [0, 0]);
+      engine.start();
+
+      // Arrow key control code
+      KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // Left, Up, Right, Down
+      $(document).keydown(function(e) {
+        direction = KEYCODE_TO_DIRECTION[e.keyCode];
+        if (direction)
+          engine.moveSnake("snake1", direction);
+      });
+
+      $("#pauseButton").click(function() { engine.togglePause(); });
+    });
+
+    function addPageStyle(css, head) {
+      var style;
+      head = head || document.getElementsByTagName("head")[0];
+      style = document.createElement("style");
+      style.type = "text/css";
+      style.appendChild(document.createTextNode(css));
+      head.appendChild(style);
+      return style;
+    }
+  </script>
+
+</head>
+
+<body>
+  <div id="board"></div>
+
+  <div id="hud">
+    <button id="pauseButton">Pause</button>
+  </div>
+</body>
+</html>

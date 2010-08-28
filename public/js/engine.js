@@ -5,12 +5,10 @@ Function.prototype.bind = function(self) {
   return function() { fn.apply(self, arguments); };
 }
 
-
 // Board cell types
 EMPTY = 0;
 APPLE = 1;
 SNAKE = 2;
-SNAKE_HEAD = 3;
 
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
@@ -76,8 +74,8 @@ Snake.prototype = {
 
 
 // Default values
-BOARD_WIDTH = 20;
-BOARD_HEIGHT = 20;
+BOARD_WIDTH = 40;
+BOARD_HEIGHT = 40;
 DESIRED_APPLES = 3;
 TURN_DURATION = 250;
 
@@ -96,7 +94,6 @@ Engine.prototype = {
       var x = Math.floor(BOARD_WIDTH * Math.random());
       var y = Math.floor(BOARD_HEIGHT * Math.random());
       if (this.board.get(x, y).type == EMPTY) {
-        console.log("adding apple", x,y);
         this.board.set(x, y, {type: APPLE});
         this.totalApples += 1;
         numApples -= 1;
@@ -122,7 +119,7 @@ Engine.prototype = {
   },
 
   start: function() {
-    this.interval = setInterval(function() {
+    this.turnTimer = setInterval(function() {
       this.processTurn();
     }.bind(this), TURN_DURATION);
   },
@@ -149,8 +146,9 @@ Engine.prototype = {
           snake.eatApple();
           this.totalApples -= 1;
         }
-        this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId });
-        this.board.set(newHead[0], newHead[1], { type: SNAKE_HEAD, snakeId: snake.snakeId });
+        this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "body" });
+        this.board.set(newHead[0], newHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "head",
+            direction: GridUtils.vectorToString(headDirection) });
         if (snake.requestedMove) { // The snake has turned
           snake.articulations = [newHead].concat(snake.articulations);
         }
@@ -199,7 +197,17 @@ Engine.prototype = {
         snake.requestMove(requestedDirection);
       }
     }
-  }
+  },
+
+  togglePause: function() {
+    if (this.turnTimer) {
+      clearTimeout(this.turnTimer);
+      this.turnTimer = null;
+    } else {
+      this.start();
+    }
+  },
+
 };
 
 var GridUtils = {
@@ -253,5 +261,18 @@ var GridUtils = {
     // Process the final point
     var lastPoint = articulations[articulations.length - 1];
     block(lastPoint[0], lastPoint[1]);
-  }
+  },
+
+  /*
+   * Takes a vector of the form [x, y] and converts that to a human-readable direction string. Returns one of
+   * left, right, down, up, none.
+  */
+  vectorToString:function(vector) {
+    if (vector[0] != 0)
+      return vector[0] < 0 ? "left" : "right";
+    else if (vector[1] != 0)
+      return vector[1] < 0 ? "up" : "down";
+    return "none";
+  },
+
 };

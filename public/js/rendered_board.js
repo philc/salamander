@@ -7,8 +7,8 @@ function extend(hashA, hashB) {
 /*
  * The board renders the state of the game, including all HTML effects.
  */
-function RenderedBoard(width, height, boardElement) {
-  this.divsize = 20;
+function RenderedBoard(width, height, cellSize, boardElement) {
+  this.cellSize = cellSize;
   this.boardElement = $(boardElement);
   this.divs = this.createDivs(width, height, this.boardElement);
   this.TYPE_TO_CLASS = ["empty", "apple", "snake", "snakeHead"];
@@ -16,7 +16,12 @@ function RenderedBoard(width, height, boardElement) {
 
 extend(RenderedBoard.prototype, {
   set: function(x, y, cell) {
-    this.drawCell(x, y, [this.TYPE_TO_CLASS[cell.type], cell.snakeId]);
+    var classes = [this.TYPE_TO_CLASS[cell.type], cell.snakeId];
+    if (cell.direction)
+      classes.push(cell.direction);
+    if (cell.segment)
+      classes.push(cell.segment);
+    this.drawCell(x, y, classes);
   },
 
   drawCell: function(x, y, classNames) {
@@ -30,8 +35,8 @@ extend(RenderedBoard.prototype, {
       divs[x] = [];
       for (var y = 0; y < height; y++) {
         var div = $(document.createElement("div"));
-        div.css("left", this.divsize * x);
-        div.css("top", this.divsize * y);
+        div.css("left", this.cellSize * x);
+        div.css("top", this.cellSize * y);
         boardElement.append(div);
         divs[x][y] = div;
       }
