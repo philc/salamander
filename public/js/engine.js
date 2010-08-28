@@ -205,6 +205,7 @@ Engine.prototype = {
         }
       }
     }
+    // TODO Only call this on server
     this.addApples(DESIRED_APPLES - this.totalApples);
   },
 
@@ -236,6 +237,99 @@ Engine.prototype = {
   },
 
 };
+
+
+var MessageType = {
+  // Sent from server to client
+  SETUP: 0,
+  GAME_STARTED: 1,
+
+  // Sent from client to server
+  START_GAME: 10,
+};
+
+// TODO do nice inheritance
+function ServerEngine() { this.subinit(); }
+extend(ServerEngine.prototype, Engine.prototype);
+extend(ServerEngine.prototype, {
+  subinit: function() {
+    this.init(null);
+    this.users = [];
+  },
+
+  registerClient: function(client) {
+    var user = { "client": client, "snake": null };
+    this.users.push(user);
+    // Register for moves from client
+    client.receive = function(msg) {
+      this.processMessage(msg, user);
+    }.bind(this);
+    this.sendSetupMessage(client);
+  },
+
+  unregisterClient: function(client) {
+    // TODO
+  },
+
+  sendSetupMessage: function(client) {
+    // Send down entire board and snake list to new user
+    var snakeData = [];
+    for (var i = 0; i < this.snakes.length; i++)
+      snakeData.push(this.snakes[i].serialize());
+    client.send({ type: MessageType.SETUP, board: this.board.matrix, snakes: snakeData });
+  },
+
+  processMessage: function(msg, user) {
+    switch(msg.type) {
+      case MessageType.START_GAME:
+        // Create a snake for the user and let them know
+        user.snake = this.createSnake();
+        user.client.send({ type: MessageType.GAME_STARTED, snake: user.snake.serialize() });
+        break;
+      default:
+        throw "Unrecognized message type " + msg.type;
+    }
+  }
+});
+
+
+function ClientEngine(renderedBoard) { this.subinit(renderdBoard); }
+extend(ClientEngine.prototype, Engine.prototype);
+extend(ClientEngine.prototype, {
+  subinit: function() {
+    this.init(renderedBoard);
+  },
+
+  registerClient: function(client) {
+    this.client = client;
+    client.receive = function(msg) { this.processMessage(msg); }.bind(this);
+  },
+
+  unregisterClient: function(client) {
+    // TODO
+  },
+
+  processMessage: function(msg) {
+    switch(msg.type) {
+      case MessageType.SETUP:
+        // Populate the board
+        this.board.setMatrix(msg.board);
+        // Read in the snakes
+        this.snakes = [];
+        for (var i = 0; i < msg.snakes.length; i++) {
+          this.snakes.push(Snake.deserialize(msg.snakes[i]));
+        }
+        break;
+      case MessageType.GAME_STARTED:
+        this.snakes.push(Snake.deserialize(msg.snake));
+        // TODO Let the user control this snake
+        break;
+      default:
+        throw "Unrecognized message type " + msg.type;
+    }
+  }
+});
+
 
 var GridUtils = {
   outOfBounds: function(point, width, height) {
