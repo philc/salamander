@@ -1,8 +1,8 @@
 var http = require('http'), 
-		url = require('url'),
-		fs = require('fs'),
-		sys = require('sys'),
-		socket = require('./socket_node/');
+	url = require('url'),
+	fs = require('fs'),
+	sys = require('sys'),
+	socket = require('./socket_node/');
 
 var PUBLIC_DIR = "/public";
 
@@ -13,11 +13,12 @@ function send404(res){
 };
 
 var Utils = {
-    ext : function(path) {
+  ext: function(path) {
       var index = path.lastIndexOf(".");
       return index < 0 ? "" : path.substring(index);
-    },
-    extToMime : { 
+  },
+
+  extToMime: { 
           ".gif"   : "image/gif"
         , ".jpg"   : "image/jpeg"
         , ".png"   : "image/png"
@@ -25,12 +26,12 @@ var Utils = {
         , ".js"    : "application/javascript"
         , ".html"  : "text/html"
         , ".ico"   : "image/vnd.microsoft.icon"
-    }
+	}
 }
  
 var server = http.createServer(function (req, res) {
-  	var path = url.parse(req.url).pathname;
-	switch (path){
+  var path = url.parse(req.url).pathname;
+  switch (path){
 		case '/':
 		    try {
 		        fs.readFile(__dirname + PUBLIC_DIR + "/index.html", function(err, data){
@@ -58,7 +59,7 @@ var server = http.createServer(function (req, res) {
 					console.log(fullpath);
 					fs.readFile(fullpath, binary ? 'binary' : 'utf8', function(err, data){
 						if (err) {
-                            res.write('awww snap! you sure this thing is around?');
+							res.write('awww snap! you sure this thing is around?');
 						} else {
 						    res.write(data, binary ? 'binary' : 'utf8');
 						}
@@ -81,10 +82,10 @@ server.listen(80);
 var io = socket.listen(server);
 
 io.on('connection', function(client){
-    var food = ["apple", "orange", "banana", "candy"];
-    for (var i=0; i < 100; i++) {
-        food.push("food: "+Math.random());
-    }
+  var food = ["apple", "orange", "banana", "candy"];
+  for (var i=0; i < 100; i++) {
+    food.push("food: "+Math.random());
+  }
     
     // var interval = setInterval(function() {
     //     if (food.length > 0) {
@@ -107,13 +108,13 @@ io.on('connection', function(client){
 	//client.send({ buffer: buffer });
 	//client.broadcast({ announcement: client.sessionId + ' connected' });
 
-    client.on('message', function(message){
-        if ("message" in message) {
-            if (message.message === "ping") {
-                client.send({message:"pong"});
-            }
-        }
-    });
+  client.on('message', function(message){
+    if ("message" in message) {
+      if (message.message === "ping") {
+        client.send({message:"pong"});
+      }
+    }
+  });
 
 	//client.on('disconnect', function(){
 	//	client.broadcast({ announcement: client.sessionId + ' disconnected' });
