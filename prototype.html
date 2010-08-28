@@ -25,6 +25,8 @@
         if (direction)
           engine.moveSnake("snake1", direction);
       });
+
+      $("#pauseButton").click(function() { engine.togglePause(); });
     });
 
     function addPageStyle(css, head) {
@@ -64,11 +66,22 @@
     #board .snake1 { background-color: green; }
     #board .snake2 { background-color: orange; }
     #board .snakeHead { background-color : black; }
+    #hud {
+      position: fixed;
+      right: 20px;
+      width: 200px;
+      height: 200px;
+      top: 20px;
+    }
   </style>
 
 </head>
 
 <body>
   <div id="board"></div>
+
+  <div id="hud">
+    <button id="pauseButton">Pause</button>
+  </div>
 </body>
 </html>

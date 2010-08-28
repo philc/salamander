@@ -121,7 +121,7 @@ Engine.prototype = {
   },
 
   start: function() {
-    setTimeout(function() {
+    this.turnTimer = setTimeout(function() {
       this.processTurn();
       this.start();
     }.bind(this), TURN_DURATION);
@@ -190,7 +190,17 @@ Engine.prototype = {
         snake.requestMove(requestedDirection);
       }
     }
-  }
+  },
+
+  togglePause: function() {
+    if (this.turnTimer) {
+      clearTimeout(this.turnTimer);
+      this.turnTimer = null;
+    } else {
+      this.start();
+    }
+  },
+
 };
 
 var GridUtils = {
