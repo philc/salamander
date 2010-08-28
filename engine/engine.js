@@ -30,7 +30,7 @@ Board.prototype = {
   },
 
   set: function(x, y, cell) {
-    this.matrix[x][y] = cell; 
+    this.matrix[x][y] = cell;
     if (this.renderedBoard) {
       this.renderedBoard.set(x, y, cell);
     }

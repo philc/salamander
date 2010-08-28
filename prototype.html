@@ -23,23 +23,25 @@
           engine.moveSnake("snake1", direction);
         }
       });
-
-      // for (var i = 6; i < 15; i++)
-      //         board.drawCell(i, 7, "playerOne");
     });
   </script>
 
   <style type="text/css" media="screen">
+    .debug #board {
+      border: 10px solid #ddd;
+    }
+    .debug #board div {
+      background-color: #eee;
+      border: 1px solid #bbb;
+    }
     #board {
       width: 400px;
       height: 400px;
-      border: 10px solid #ddd;
       position: relative;
+      background-color: #ddd;
     }
     #board div {
       position: absolute;
-      background-color: #eee;
-      border: 1px solid #bbb;
       width: 20px;
       height: 20px;
     }
@@ -49,9 +51,8 @@
     #board .snake {
       background-color: blue;
     }
-    .playerOne {
-      background-color: orange;
-    }
+    #board .snake1 { background-color: green; }
+    #board .snake2 { background-color: orange; }
   </style>
 
 </head>
