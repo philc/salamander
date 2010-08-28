@@ -13,33 +13,35 @@
         io.setPath('../js/socket/');
         
         var socket = new io.Socket(null, {port: 80});
-        socket.connect();
-        var gameClient = new protocol.GameClient(socket);
-        
-        socket.on('message', function(msg){
-            var type = protocol.messageType(msg);
-            if (type === protocol.Types.GameState) {
-                gameClient.receive(protocol.messageData(msg));
-            }
+        var gameClient;
+        socket.on("connect", function() {
+            gameClient = new protocol.GameClient(socket);
+            gameClient.receive = function(data) {
+                //TODO: Harry fill in here
+                document.getElementById('msg').innerHTML += data + "<br/>";
+            };
+            
+            socket.on('message', function(msg){
+                var type = protocol.messageType(msg);
+                if (type === protocol.Types.GameState) {
+                    gameClient.receive(protocol.messageData(msg));
+                }
+            });
+            
+            //test code
+            var count = 0;
+            var interval = setInterval(function() {
+                if (count < 10) {
+                    gameClient.send("ping");
+                    document.getElementById('msg').innerHTML += "<b>ping:</b>" + "<br/>";
+                    count++;
+                }
+                else {
+                    clearInterval(interval);
+                }
+            },0);
         });
-        
-        //test code
-        var count = 0;
-        var interval = setInterval(function() {
-            if (count < 10) {
-                gameClient.send("ping");
-                document.getElementById('msg').innerHTML += "<b>ping:</b>" + "<br/>";
-                count++;
-            }
-            else {
-                clearInterval(interval);
-            }
-        },0);
-        
-        gameClient.receive = function(data) {
-            //TODO: Harry fill in here
-            document.getElementById('msg').innerHTML += data + "<br/>";
-        };
+        socket.connect();
         
         //TODO game code here
     </script>
