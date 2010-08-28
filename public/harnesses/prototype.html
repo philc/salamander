@@ -3,6 +3,10 @@
 <head>
   <title>Salamander</title>
 
+  <script>
+    var exports = {};
+  </script>
+
   <script src="/js/jquery-1.4.2.js"></script>
   <script src="/js/engine.js"></script>
   <script src="/js/rendered_board.js"></script>
@@ -14,7 +18,7 @@
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
 
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
-      engine = new Engine(window.board);
+      engine = new ClientEngine(window.board);
       engine.addSnake("snake1", [5, 1], [1, 1]);
       engine.addSnake("snake2", [0, 5], [0, 0]);
       engine.start();
