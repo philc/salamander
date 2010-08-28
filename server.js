@@ -32,7 +32,7 @@ var server = http.createServer(function (req, res) {
 	switch (path){
 		case '/':
 		    try {
-		        fs.readFile(__dirname + PUBLIC_DIR + "index.html", function(err, data){
+		        fs.readFile(__dirname + PUBLIC_DIR + "/index.html", function(err, data){
     			    res.writeHead(200, {'Content-Type': 'text/html'});
     			    if (err) {
     			        res.write('awww snap! we lost our home page');
