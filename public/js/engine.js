@@ -276,3 +276,5 @@ var GridUtils = {
   },
 
 };
+
+exports.Engine = Engine;

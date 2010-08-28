@@ -4,22 +4,30 @@
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <title>Socket Test</title>
+    <script type="text/javascript" charset="utf-8">
+        var exports = {};
+    </script>
     <script type="text/javascript" src="js/socket/socket.io.js"></script>
+    <script type="text/javascript" src="js/protocol.js"></script>
     <script type="text/javascript">
         io.setPath('js/socket/');
         
-        var count = 0;
-        
         var socket = new io.Socket(null, {port: 80});
         socket.connect();
-        socket.on('message', function(obj){
-            if ('message' in obj){
-                document.getElementById('msg').innerHTML += obj.message + "<br/>";
+        var gameClient = new protocol.GameClient(socket);
+        
+        socket.on('message', function(msg){
+            var type = protocol.messageType(msg);
+            if (type === protocol.Types.GameState) {
+                gameClient.receive(protocol.messageData(msg));
             }
         });
+        
+        //test code
+        var count = 0;
         var interval = setInterval(function() {
-            if (count < 100) {
-                socket.send({message:"ping"});
+            if (count < 10) {
+                gameClient.send("ping");
                 document.getElementById('msg').innerHTML += "<b>ping:</b>" + "<br/>";
                 count++;
             }
@@ -27,6 +35,13 @@
                 clearInterval(interval);
             }
         },0);
+        
+        gameClient.receive = function(data) {
+            //TODO: Harry fill in here
+            document.getElementById('msg').innerHTML += data + "<br/>";
+        };
+        
+        //TODO game code here
     </script>
 </head>
 

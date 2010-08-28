@@ -2,12 +2,14 @@ var http = require('http'),
 	url = require('url'),
 	fs = require('fs'),
 	sys = require('sys'),
-	socket = require('./socket_node/');
+	socket = require('./socket_node/'),
+	Engine = require('./public/js/engine').Engine;
+	protocol = require('./public/js/protocol').protocol;
 
 var PUBLIC_DIR = "/public";
 
 function send404(res){
-	res.writeHead(200, {'Content-Type': 'text/html'});
+	res.writeHead(404, {'Content-Type': 'text/html'});
 	res.write('file not found foo!');
 	res.end();
 };
@@ -51,12 +53,13 @@ var server = http.createServer(function (req, res) {
 		default:
 			if (/\.(js|html|css|png|jpg|gif)$/.test(path)){
 				try {
-				    var ext = Utils.ext(path);
-				    var mime = Utils.extToMime[ext];
+          var ext = Utils.ext(path);
+          var mime = Utils.extToMime[ext];
 					var binary = (ext === '.jpg' || ext === '.png' || ext === '.gif' || ext === '.ico');
+					
 					res.writeHead(200, {'Content-Type' : mime});
 					var fullpath = __dirname + PUBLIC_DIR + path;
-					console.log(fullpath);
+					//console.log(fullpath);
 					fs.readFile(fullpath, binary ? 'binary' : 'utf8', function(err, data){
 						if (err) {
 							res.write('awww snap! you sure this thing is around?');
@@ -66,7 +69,7 @@ var server = http.createServer(function (req, res) {
 						res.end();
 					});
 				} catch(e){ 
-				    console.log("Exception: "+e);
+          console.log("Exception: "+e);
 					send404(res); 
 				}
 				break;
@@ -79,43 +82,33 @@ var server = http.createServer(function (req, res) {
  
 server.listen(80);
 
+var engine = new Engine(null);
+engine.addSnake("snake1", 5, 1, 1, 1);
+engine.addSnake("snake2", 0, 5, 0, 0);
+engine.start();
+
 var io = socket.listen(server);
 
+var clients = {};//map of all clients to gameClient objects
+
 io.on('connection', function(client){
-  var food = ["apple", "orange", "banana", "candy"];
-  for (var i=0; i < 100; i++) {
-    food.push("food: "+Math.random());
-  }
-    
-    // var interval = setInterval(function() {
-    //     if (food.length > 0) {
-    //         client.send({message: food.pop()});
-    //         if (food.length == 0) {
-    //             clearInterval(interval);//stop sending messages
-    //         }
-    //     } else {
-    //         client.send({message: "no more food"});
-    //     }
-    // },1000);
-    
-    // while (food.length > 0) {
-    //     client.send({message: food.pop()});
-    //     if (food.length == 0) {
-    //         client.send({message: "no more food"});
-    //     }
-    // }
-    
+  clients[client] = new protocol.GameClient(client);
+  clients[client].receive = function(data) {this.send("pong");};
+
 	//client.send({ buffer: buffer });
 	//client.broadcast({ announcement: client.sessionId + ' connected' });
 
   client.on('message', function(message){
-    if ("message" in message) {
-      if (message.message === "ping") {
-        client.send({message:"pong"});
-      }
+    var type = protocol.messageType(message);
+    if (type === protocol.Types.GameState) {
+      clients[client].receive(protocol.messageData(message));
     }
+    // else {
+    //   
+    // }
   });
 
+  //TODO: unregister client from game engine
 	//client.on('disconnect', function(){
 	//	client.broadcast({ announcement: client.sessionId + ' disconnected' });
 	//});
