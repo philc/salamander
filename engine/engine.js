@@ -59,7 +59,7 @@ Snake.prototype = {
   },
 
   eatApple: function() {
-    // TODO
+    this.desiredSize += 2;
   },
 
   requestMove: function(requestedDirection) {
@@ -85,7 +85,7 @@ Engine.prototype = {
     this.snakes = [];
     this.totalApples = 0;
 
-    // this.addApples(DESIRED_APPLES);
+    this.addApples(DESIRED_APPLES);
   },
 
   addApples: function(numApples) {
@@ -93,6 +93,7 @@ Engine.prototype = {
       var x = Math.floor(BOARD_WIDTH * Math.random());
       var y = Math.floor(BOARD_HEIGHT * Math.random());
       if (this.board.get(x, y).type == EMPTY) {
+        console.log("adding apple", x,y);
         this.board.set(x, y, {type: APPLE});
         this.totalApples += 1;
         numApples -= 1;
@@ -140,8 +141,10 @@ Engine.prototype = {
         continue;
       }
       else {
-        if (cell.type == APPLE)
+        if (cell.type == APPLE) {
           snake.eatApple();
+          this.totalApples -= 1;
+        }
         this.board.set(newHead[0], newHead[1], { type: SNAKE, snakeId: snake.snakeId });
         if (snake.requestedMove) { // The snake has turned
           snake.articulations = [newHead].concat(snake.articulations);
@@ -172,7 +175,7 @@ Engine.prototype = {
         }
       }
     }
-    this.addApples(DESIRED_APPLES - this.board.totalApples);
+    this.addApples(DESIRED_APPLES - this.totalApples);
   },
 
   moveSnake: function(snakeId, requestedDirection) {
