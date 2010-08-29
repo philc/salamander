@@ -171,7 +171,11 @@ Engine.prototype = {
     if (!this.isServer) // TODO HACK until we have proper syncing with the server.
       return;
     this.turnTimer = setInterval(function() {
-      this.processTurn();
+      try {
+        this.processTurn();
+      } catch(e) {
+        console.log("Swallowing Exception:", JSON.stringify(e));
+      }
     }.bind(this), TURN_DURATION);
   },
 

@@ -120,7 +120,7 @@ io.on('connection', function(client){
         clients[client.sessionId].receive(protocol.messageData(message)); 
       }
       catch(e) {
-        console.log("Swollowing Exception: "+e);
+        console.log("Swallowing Exception:", JSON.stringify(e));
       }
     }
     // else {
