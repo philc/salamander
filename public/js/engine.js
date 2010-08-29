@@ -5,7 +5,7 @@ APPLE = 1;
 SNAKE = 2;
 OBSTACLE = 3;
 
-var COLORS = ["#abc","#cde","#123","#1e1","#59f", "#9b6", "#b38", "#a3c"];
+var COLORS = ["#abc","#81h","#123","#1e1","#59f", "#9b6", "#b38", "#a3c"];
 
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
@@ -138,9 +138,16 @@ Snake.randomName = function() {
   var index = Math.floor(Math.random() * RANDOM_NAMES.length);
   return RANDOM_NAMES[index];
 }
+Snake.colorIndex = 0;
 Snake.randomColor = function() {
-  var index = Math.floor(Math.random() * COLORS.length);
-  return COLORS[index];
+  if (Snake.colorIndex < COLORS.length) {
+    return COLORS[Snake.colorIndex++];
+  }
+  else {
+    Snake.colorIndex = 0;
+    return COLORS[Snake.colorIndex];
+  }
+
 }
 
 
