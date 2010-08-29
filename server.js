@@ -90,6 +90,20 @@ var io = socket.listen(server);
 
 var clients = {};//map of all clients to gameClient objects
 
+//send user data up
+setInterval(function() {
+  //console.log(engine.snakes);
+  var users = engine.users,
+    outUsers = [];
+  console.log(users.length);
+  for (var i = users.length - 1; i >= 0; i--){
+    if (users[i].snake) {
+      outUsers.push(users[i].snake);
+    }
+  };
+  io.broadcast(protocol.newMessage(protocol.Types.Users, outUsers));
+}, 1000);
+
 io.on('connection', function(client){
   var gameClient = new protocol.GameClient(client);
   clients[client] = gameClient;
@@ -109,8 +123,7 @@ io.on('connection', function(client){
     // }
   });
 
-  //TODO: unregister client from game engine
-	//client.on('disconnect', function(){
-	//	client.broadcast({ announcement: client.sessionId + ' disconnected' });
-	//});
+  client.on('disconnect', function(){
+    engine.unregisterClient(clients[client]);
+  });
 });
