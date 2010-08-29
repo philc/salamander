@@ -66,7 +66,7 @@ var server = http.createServer(function (req, res) {
             if (err) {
               res.write('awww snap! you sure this thing is around?');
             } else {
-                res.write(data, binary ? 'binary' : 'utf8');
+              res.write(data, binary ? 'binary' : 'utf8');
             }
             res.end();
           });
