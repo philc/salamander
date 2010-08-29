@@ -30,6 +30,7 @@ var Utils = {
         , ".js"    : "application/javascript"
         , ".html"  : "text/html"
         , ".ico"   : "image/vnd.microsoft.icon"
+        , ".swf"   : "application/x-shockwave-flash"
   }
 }
 
@@ -53,11 +54,11 @@ var server = http.createServer(function (req, res) {
       }
       break;
     default:
-      if (/\.(js|html|css|png|jpg|gif)$/.test(path)){
+      if (/\.(js|html|css|png|jpg|gif|swf)$/.test(path)){
         try {
           var ext = Utils.ext(path);
           var mime = Utils.extToMime[ext];
-          var binary = (ext === '.jpg' || ext === '.png' || ext === '.gif' || ext === '.ico');
+          var binary = (ext === '.jpg' || ext === '.png' || ext === '.gif' || ext === '.ico' || ext === '.swf');
 
           res.writeHead(200, {'Content-Type' : mime});
           var fullpath = __dirname + PUBLIC_DIR + path;
