@@ -142,7 +142,7 @@ Snake.deserialize = function(data) {
 BOARD_WIDTH = 100;
 BOARD_HEIGHT = 60;
 DESIRED_APPLES = 10;
-OBSTACLE_COUNT = 3;
+OBSTACLE_COUNT = 5;
 TURN_DURATION = 250;
 
 function Engine(renderedBoard) { this.init(renderedBoard); }
@@ -273,7 +273,7 @@ Engine.prototype = {
   addRandomObstacles: function() {
     // Divide the board up into vertical zones and distribute the obstacles evenly across them.
     // NOTE(philc): This is not as a good as true random placement, but we're in a rush.
-    var zoneWidth = Math.floor(BOARD_HEIGHT / OBSTACLE_COUNT);
+    var zoneWidth = Math.floor(BOARD_WIDTH / OBSTACLE_COUNT);
     for (var i = 0; i < OBSTACLE_COUNT; i++) {
       this.addObstacleAt(
           randomNumber(i * zoneWidth, (i + 1) * zoneWidth - 2),
