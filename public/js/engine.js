@@ -160,9 +160,6 @@ Engine.prototype = {
     console.log("start");
     if (!this.isServer) // TODO HACK until we have proper syncing with the server.
       return;
-
-    this.addRandomObstacles();
-
     this.turnTimer = setInterval(function() {
       try {
         this.processTurn();
@@ -255,31 +252,6 @@ Engine.prototype = {
     }
   },
 
-  /*
-   * Adds obstacles to the board in random locations, but evenly distributes them.
-   */
-  addRandomObstacles: function() {
-    // Divide the board up into vertical zones and distribute the obstacles evenly across them.
-    // NOTE(philc): This is not as a good as true random placement, but we're in a rush.
-    var zoneWidth = Math.floor(BOARD_WIDTH / OBSTACLE_COUNT);
-    for (var i = 0; i < OBSTACLE_COUNT; i++) {
-      this.addObstacleAt(
-          randomNumber(i * zoneWidth, (i + 1) * zoneWidth - 2),
-          randomNumber(2, BOARD_HEIGHT - 5));
-    }
-  },
-
-  addObstacleAt: function(x, y) {
-    console.log("Adding obstacle at", x, y);
-    // An obstacle takes up many cells (2x3 at the moment) but the upper left corner should be marked
-    // specifically, so it gets drawn/styled only once.
-    for (var i = y; i < (y + 3) ; i++) {
-      this.board.set(x, i, { type: OBSTACLE });
-      this.board.set(x + 1, i, { type: OBSTACLE });
-    }
-    this.board.set(x, y, { type: OBSTACLE, segment: "obstacleCorner" });
-  },
-
   killSnakeAtIndex: function(index) {
     var snake = this.snakes[index];
     snake.die();//let it do any cleanup it wants
@@ -335,6 +307,7 @@ extend(ServerEngine.prototype, {
     this.users = [];
     this.newApples = [];
     this.addRandomApples(DESIRED_APPLES);
+    this.addRandomObstacles();
   },
 
   registerClient: function(client) {
@@ -392,6 +365,31 @@ extend(ServerEngine.prototype, {
         numApples -= 1;
       }
     }
+  },
+
+  /*
+   * Adds obstacles to the board in random locations, but evenly distributes them.
+   */
+  addRandomObstacles: function() {
+    // Divide the board up into vertical zones and distribute the obstacles evenly across them.
+    // NOTE(philc): This is not as a good as true random placement, but we're in a rush.
+    var zoneWidth = Math.floor(BOARD_WIDTH / OBSTACLE_COUNT);
+    for (var i = 0; i < OBSTACLE_COUNT; i++) {
+      this.addObstacleAt(
+          randomNumber(i * zoneWidth, (i + 1) * zoneWidth - 2),
+          randomNumber(2, BOARD_HEIGHT - 5));
+    }
+  },
+
+  addObstacleAt: function(x, y) {
+    console.log("Adding obstacle at", x, y);
+    // An obstacle takes up many cells (2x3 at the moment) but the upper left corner should be marked
+    // specifically, so it gets drawn/styled only once.
+    for (var i = y; i < (y + 3) ; i++) {
+      this.board.set(x, i, { type: OBSTACLE });
+      this.board.set(x + 1, i, { type: OBSTACLE });
+    }
+    this.board.set(x, y, { type: OBSTACLE, segment: "obstacleCorner" });
   },
 
   // Creates a new snake object, and adds it to the board and snakes list, and returns it.
