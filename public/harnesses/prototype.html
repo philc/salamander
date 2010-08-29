@@ -43,7 +43,7 @@
       $(document).keydown(function(e) {
         direction = KEYCODE_TO_DIRECTION[e.keyCode];
         if (direction)
-          engine.moveSnake("snake1", direction);
+          engine.moveSnake(direction);
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });
@@ -54,6 +54,7 @@
     });
 
     function startGame() {
+      console.log("startGame");
       $("#start").hide();
       engine.start();
     }

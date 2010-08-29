@@ -122,21 +122,12 @@ Engine.prototype = {
     this.board = new Board(BOARD_WIDTH, BOARD_HEIGHT, renderedBoard);
     this.snakes = [];
     this.totalApples = 0;
-  },
-
-  addApples: function(numApples) {
-    while (numApples > 0) {
-      var x = Math.floor(BOARD_WIDTH * Math.random());
-      var y = Math.floor(BOARD_HEIGHT * Math.random());
-      if (this.board.get(x, y).type == EMPTY) {
-        this.board.set(x, y, {type: APPLE});
-        this.totalApples += 1;
-        numApples -= 1;
-      }
-    }
+    this.processedMoves = {}; // Contains the snake moves processed in the last turn, snakeId => [dx,dy]
+    this.snakeChanges = {}; // Mapping of snakeId => {type: add|remove}
   },
 
   addSnakeToBoard: function(snake) {
+    console.log("addSnakeToBoard", snake);
     var head = snake.articulations[0];
     var tail = snake.articulations[1];
     if (head[0] != tail[0] && head[1] != tail[1])
@@ -149,14 +140,20 @@ Engine.prototype = {
   },
 
   start: function() {
+    console.log("start");
+    if (!this.isServer) // TODO HACK until we have proper syncing with the server.
+      return;
     this.turnTimer = setInterval(function() {
       this.processTurn();
     }.bind(this), TURN_DURATION);
   },
 
   processTurn: function() {
+    this.processedMoves = {};
     for (var i = 0; i < this.snakes.length; i++) {
       var snake = this.snakes[i];
+      if (snake.requestedMove != null)
+        this.processedMoves[snake.snakeId] = snake.requestedMove;
       // Move snake's head
       var headDirection = snake.requestedMove || snake.computeHeadDirection();
       var oldHead = snake.head();
@@ -208,8 +205,10 @@ Engine.prototype = {
         }
       }
     }
-    if (this.isServer)
-      this.addApples(DESIRED_APPLES - this.totalApples);
+    if (this.isServer) {
+      this.addRandomApples(DESIRED_APPLES - this.totalApples);
+      this.broadcastUpdate();
+    }
   },
 
   killSnakeAtIndex: function(index) {
@@ -220,6 +219,7 @@ Engine.prototype = {
     GridUtils.iterateAlongArticulations(snake.articulations, function(x, y) {
       this.board.set(x, y, { type: EMPTY });
     }.bind(this));
+    this.snakeChanges[snake.snakeId] = { type: SNAKE_REMOVE };
   },
 
   togglePause: function() {
@@ -238,11 +238,15 @@ var MessageType = {
   // Sent from server to client
   SETUP: "setup",
   GAME_STARTED: "gameStarted",
+  UPDATE: "update",
 
   // Sent from client to server
   START_GAME: "startGame",
   REQUEST_MOVE: "requestMove",
 };
+
+SNAKE_ADDITION = "add";
+SNAKE_REMOVE = "remove";
 
 SNAKE_START_SIZE = 3;
 
@@ -254,7 +258,8 @@ extend(ServerEngine.prototype, {
     this.init(null);
     this.isServer = true;
     this.users = [];
-    this.addApples(DESIRED_APPLES);
+    this.newApples = [];
+    this.addRandomApples(DESIRED_APPLES);
   },
 
   registerClient: function(client) {
@@ -271,14 +276,6 @@ extend(ServerEngine.prototype, {
     // TODO
   },
 
-  sendSetupMessage: function(client) {
-    // Send down entire board and snake list to new user
-    var snakeData = [];
-    for (var i = 0; i < this.snakes.length; i++)
-      snakeData.push(this.snakes[i].serialize());
-    client.send({ type: MessageType.SETUP, board: this.board.matrix, snakes: snakeData });
-  },
-
   processMessage: function(msg, user) {
     console.log("processMessage", JSON.stringify(msg));
     switch(msg.type) {
@@ -292,6 +289,27 @@ extend(ServerEngine.prototype, {
         break;
       default:
         throw "Unrecognized message type " + msg.type;
+    }
+  },
+
+  sendSetupMessage: function(client) {
+    // Send down entire board and snake list to new user
+    var snakeData = [];
+    for (var i = 0; i < this.snakes.length; i++)
+      snakeData.push(this.snakes[i].serialize());
+    client.send({ type: MessageType.SETUP, board: this.board.matrix, snakes: snakeData });
+  },
+
+  addRandomApples: function(numApples) {
+    while (numApples > 0) {
+      var x = Math.floor(BOARD_WIDTH * Math.random());
+      var y = Math.floor(BOARD_HEIGHT * Math.random());
+      if (this.board.get(x, y).type == EMPTY) {
+        this.board.set(x, y, {type: APPLE});
+        this.totalApples += 1;
+        this.newApples.push([x, y]);
+        numApples -= 1;
+      }
     }
   },
 
@@ -323,11 +341,29 @@ extend(ServerEngine.prototype, {
     }
 
     var snake = new Snake(snakeId, [head, tail], SNAKE_START_SIZE, SNAKE_START_SIZE, null);
-
     this.snakes.push(snake);
     this.addSnakeToBoard(snake);
+    this.snakeChanges[snakeId] = { type: SNAKE_ADDITION, snake: snake.serialize() };
     return snake;
-  }
+  },
+
+  broadcastUpdate: function() {
+    update = { type: MessageType.UPDATE,
+               newApples: this.newApples,
+               processedMoves: this.processedMoves,
+               snakeChanges: this.snakeChanges };
+    for (var i = 0; i < this.users.length; i++) {
+      var user = this.users[i];
+      if (update.snakeChanges[user.snake.snakeId])
+        update.snakeChanges[user.snake.snakeId].isMySnake = true;
+      user.client.send(update);
+      if (update.snakeChanges[user.snake.snakeId])
+        update.snakeChanges[user.snake.snakeId].isMySnake = false;
+    }
+    this.newApples = [];
+    this.processedMoves = {};
+    this.snakeChanges = {};
+  },
 });
 
 
@@ -350,7 +386,6 @@ extend(ClientEngine.prototype, {
   },
 
   processMessage: function(msg) {
-    console.log("processMessage", msg);
     switch(msg.type) {
       case MessageType.SETUP:
         // Populate the board
@@ -365,10 +400,34 @@ extend(ClientEngine.prototype, {
         this.client.send({ type: MessageType.START_GAME });
         break;
       case MessageType.GAME_STARTED:
-        var snake = Snake.deserialize(msg.snake);
-        this.snakes.push(snake);
-        this.addSnakeToBoard(snake);
-        this.mySnake = snake;
+        // TODO remove this as all the information is in UPDATE anyway
+        // var snake = Snake.deserialize(msg.snake);
+        // this.snakes.push(snake);
+        // this.addSnakeToBoard(snake);
+        // this.mySnake = snake;
+        break;
+      case MessageType.UPDATE:
+        // TODO Check for conflicts
+        this.addSpecificApples(msg.newApples);
+        // Process moves and snake removals
+        for (var i = 0; i < this.snakes.length; i++) {
+          var snakeId = this.snakes[i].snakeId;
+          if (msg.processedMoves[snakeId])
+            this.snakes[i].requestMove(msg.processedMoves[snakeId]);
+          if (msg.snakeChanges[snakeId] && msg.snakeChanges[snakeId].type == SNAKE_REMOVE)
+            this.killSnakeAtIndex(i);
+        }
+        // Process snake additions
+        for (var snakeId in msg.snakeChanges) {
+          if (msg.snakeChanges[snakeId].type == SNAKE_ADDITION) {
+            var snake = Snake.deserialize(msg.snakeChanges[snakeId].snake);
+            this.snakes.push(snake);
+            this.addSnakeToBoard(snake);
+            if (msg.snakeChanges[snakeId].isMySnake)
+              this.mySnake = snake;
+          }
+        }
+        this.processTurn();
         break;
       default:
         throw "Unrecognized message type " + msg.type;
@@ -378,9 +437,17 @@ extend(ClientEngine.prototype, {
   moveSnake: function(requestedDirection) {
     if (this.mySnake == null)
       return;
-    if (this.mySnake.requestMove(requestedDirection)) {
+    // TODO Put back in this if statement when we want to have client seeking
+    // if (this.mySnake.requestMove(requestedDirection))
       this.client.send({ type: MessageType.REQUEST_MOVE, direction: requestedDirection });    
+  },
+
+  addSpecificApples: function(newApples) {
+    for (var i = 0; i < newApples.length; i++) {
+      var point = newApples[i];
+      this.board.set(point[0], point[1], {type: APPLE});
     }
+    this.totalApples += newApples.length;
   },
 });
 
