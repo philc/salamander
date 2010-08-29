@@ -94,19 +94,19 @@ extend(RenderedBoard.prototype, {
       this.animateDeathFlash(cell);
     }.bind(this));
 
-    if (jQuery.browser.webkit) {
-      setTimeout(function() {
-        jQuery.each(bodyCells, function(i, element) {
-          element.css("borderRadius", 3);
-          element.animate(animationProperties,
-              { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
-        });
-      }, 300);
-    } else {
+    // if (jQuery.browser.webkit) {
+    //   setTimeout(function() {
+    //     jQuery.each(bodyCells, function(i, element) {
+    //       element.css("borderRadius", 3);
+    //       element.animate(animationProperties,
+    //           { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
+    //     });
+    //   }, 300);
+    // } else {
       setTimeout(function() {
         jQuery.each(bodyCells, function(i, element) { $(element).remove(); });
       }, 300);
-    }
+    // }
   },
 
   animateDeathFlash: function(element) {
