@@ -205,7 +205,7 @@ Engine.prototype = {
                 // Place a tombstone at the cell of oldHead
                 // TODO Technically we should place tombstones all along the body of the dead snake
                 this.board.get(oldHead[0], oldHead[1]).isTombstone = true;
-                tombstones.push(oldHead);
+                tombstones.push([oldHead[0], oldHead[1]]);
               }
             }
         continue;
@@ -248,7 +248,7 @@ Engine.prototype = {
 
     // Clean out all tombstones
     for (var i = 0; i < tombstones.length; i++)
-      delete this.board.get(tombstone[i][0], tombstone[i][1]).isTombstone;
+      delete this.board.get(tombstones[i][0], tombstones[i][1]).isTombstone;
 
     if (this.isServer) {
       this.addRandomApples(DESIRED_APPLES - this.totalApples);
