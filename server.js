@@ -107,7 +107,7 @@ setInterval(function() {
 
 io.on('connection', function(client){
   var gameClient = new protocol.GameClient(client);
-  clients[client] = gameClient;
+  clients[client.sessionId] = gameClient;
   
   engine.registerClient(gameClient);
   
@@ -117,7 +117,7 @@ io.on('connection', function(client){
   client.on('message', function(message){
     var type = protocol.messageType(message);
     if (type === protocol.Types.GameState) {
-      clients[client].receive(protocol.messageData(message));
+      clients[client.sessionId].receive(protocol.messageData(message));
     }
     // else {
     //   
@@ -125,6 +125,6 @@ io.on('connection', function(client){
   });
 
   client.on('disconnect', function(){
-    engine.unregisterClient(clients[client]);
+    engine.unregisterClient(clients[client.sessionId]);
   });
 });
