@@ -114,3 +114,9 @@ a.button:active {
 }
 
 .innerBox {position: relative;}
+
+.announcement {
+  position: absolute;
+  z-index: 999;
+  font-size: 0.1em;
+}

@@ -36,6 +36,7 @@
       // Used is used for development to skip the start screen.
       var autoStart = document.location.toString().indexOf("autostart") >= 0;
 
+      //set up game board
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
       addPageStyle("#board .obstacleCorner { width: " + (2 * cellSize) + "px; " +
@@ -48,12 +49,13 @@
       engine.registerClient(gameClient);
       engine.addEventListener("snakeDead", function() {
         setTimeout(function() {
-          $("#restart").show();
+          $("#restart").fadeIn();
           var restartName = $("#restartName");
           if (!restartName.val()) {
             restartName.val($("#startName").val());
           }
           $("#restartName").focus();
+          myPrevTitle = snakeTitles["0"];
         }, 2000);
       });
 
@@ -100,7 +102,7 @@
       if (!name) { name = (new Date()).getTime()+"";}
       engine.setUserProps({"name":name});
       engine.startGame();
-      $(".popup").hide();
+      $(".popup").fadeOut();
     }
 
     function addPageStyle(css, head) {
@@ -113,6 +115,7 @@
       return style;
     }
     
+    //handle users data
     var snakeTitles = {
       "500":"Black Mamba",
       "450":"King Cobra",
@@ -122,22 +125,25 @@
       "250":"Python",
       "200":"Taipan",
       "150":"Boomslang",
-      "100":"Rattlesnake",
+      "100":"Valley Rattlesnake",
       "0":"Garden Snake",
     }
     var snakeGraduations = [500,450,400,350,300,250,200,150,100,0];
+    var myPrevTitle = snakeTitles["0"];
     
     function handleUsers(users) {
       var totalUsers = users.length;
-      users.sort(function(a,b) {
-        return b.snake.size - a.snake.size;
-      });      
+      //sort from largest snake down
+      users.sort(function(a,b) { return b.snake.size - a.snake.size; });
+      
+      var me = false;
       var maxTop = 10;
       var topFew = (users.length > maxTop) ? maxTop : users.length;
       var output = "";
       var size = 0;
       var title = "";
       for (var i=0; i < topFew; i++) {
+        me = (engine.mySnake.snakeId === users[i].snake.snakeId);
         size = users[i].snake.size;
         for (var j = 0; j < snakeGraduations.length; j++){
           if (size >= snakeGraduations[j]) {
@@ -145,12 +151,30 @@
             break;
           }
         }
+        if (me) {
+          output += "You: ";
+          if (title !== myPrevTitle) {
+            announce(title);
+            myPrevTitle = title;
+          }
+        }
         output += ""+ users[i].props.name + ": " + size + " - " + title + "<br/>";
+
       }
       
       $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
     }
     
+    function announce(text) {
+      var myHead = engine.mySnake.head();
+      var div = board.divs[myHead[0]][myHead[1]];
+      var announcement = $('<div class="announcement"></div>').html(text).css({width: "1000px", top: div.css("top"), left: div.css("left")});
+      console.log(announcement);
+      $("#board").append(announcement);
+      announcement.animate({opacity: 0,fontSize: "3em", marginLeft: "-100px"}, 1500, function() {
+        announcement.remove();
+      });
+    }
   </script>
 
 </head>
@@ -189,6 +213,6 @@
     </div>
   </div>
   
-   
+  <div id="announcements"></div>
 </body>
 </html>
