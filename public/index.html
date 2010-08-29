@@ -29,20 +29,7 @@
           gameClient.receive(protocol.messageData(msg));
         }
         else if (type === protocol.Types.Users) {
-          var users = protocol.messageData(msg);
-          var totalUsers = users.length;
-          users.sort(function(a,b) {
-            return b.snake.size - a.snake.size;
-          });
-          
-          var maxTop = 3;
-          var topFew = (users.length > maxTop) ? maxTop : users.length;
-          var output = "";
-          for (var i=0; i < topFew; i++) {
-            output += ""+ users[i].props.name + ": " + users[i].snake.size + "<br/>";
-          }
-          
-          $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
+          handleUsers(protocol.messageData(msg));
         }
       });
 
@@ -124,6 +111,45 @@
       head.appendChild(style);
       return style;
     }
+    
+    var snakeTitles = {
+      "500":"Black Mamba",
+      "450":"King Cobra",
+      "400":"Death Adder",
+      "350":"Anaconda",
+      "300":"Viper",
+      "250":"Python",
+      "200":"Taipan",
+      "150":"Boomslang",
+      "100":"Rattlesnake",
+      "0":"Garden Snake",
+    }
+    var snakeGraduations = [500,450,400,350,300,250,200,150,100,0];
+    
+    function handleUsers(users) {
+      var totalUsers = users.length;
+      users.sort(function(a,b) {
+        return b.snake.size - a.snake.size;
+      });      
+      var maxTop = 10;
+      var topFew = (users.length > maxTop) ? maxTop : users.length;
+      var output = "";
+      var size = 0;
+      var title = "";
+      for (var i=0; i < topFew; i++) {
+        size = users[i].snake.size * 10;
+        for (var j = 0; j < snakeGraduations.length; j++){
+          if (size >= snakeGraduations[j]) {
+            title = snakeTitles[""+snakeGraduations[j]];
+            break;
+          }
+        }
+        output += ""+ users[i].props.name + ": " + size + " - " + title + "<br/>";
+      }
+      
+      $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
+    }
+    
   </script>
 
 </head>
@@ -136,7 +162,7 @@
       <!--button id="pauseButton">Pause</button-->
       <div id="leaderboard">
       </div>
-      <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="position: fixed; top: 20px; right: 20px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!"/></a>
+        <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="position: fixed; top: 20px; right: 20px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!"/></a>
     </div>
   </div>
   
