@@ -159,10 +159,10 @@ Engine.prototype = {
     this.allApples = [];
     this.processedMoves = {}; // Contains the snake moves processed in the last turn, snakeId => [dx,dy]
     this.snakeChanges = {}; // Mapping of snakeId => {type: add|remove}
+    this.totalTurns = 0;
   },
 
   addSnakeToBoard: function(snake) {
-    console.log("addSnakeToBoard", snake);
     var head = snake.articulations[0];
     var tail = snake.articulations[1];
     if (head[0] != tail[0] && head[1] != tail[1])
@@ -175,6 +175,7 @@ Engine.prototype = {
   },
 
   processTurn: function() {
+    this.totalTurns += 1;
     this.processedMoves = {};
     var tombstones = []; // List of "tombstones" marking the heads of snakes that died this turn.
     for (var i = 0; i < this.snakes.length; i++) {
@@ -186,12 +187,17 @@ Engine.prototype = {
       var headDirection = requestedMove || snake.computeHeadDirection();
       var oldHead = snake.head();
       var newHead = GridUtils.addVectorToPoint(snake.head(), headDirection);
+      // console.log(newHead[0], newHead[1]);
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
+        if (!this.isServer)
+          throw "Trying to kill snake which is alive on the server";
         this.killSnakeAtIndex(i);
         continue;
       }
       var cell = this.board.get(newHead[0], newHead[1]);
       if (cell.type == SNAKE || cell.isTombstone || cell.type == OBSTACLE) {
+        if (!this.isServer)
+          throw "Trying to kill snake which is alive on the server";
         this.killSnakeAtIndex(i);
         if (cell.segment == "head")
           // Kill the other snake at this cell if necessary
@@ -291,6 +297,7 @@ var MessageType = {
   SET_USER_PROPS: "setUserProps",
   START_GAME: "startGame",
   REQUEST_MOVE: "requestMove",
+  REQUEST_REFRESH: "requestRefresh",
 };
 
 SNAKE_ADDITION = "add";
@@ -300,7 +307,7 @@ SNAKE_START_SIZE = 4;
 MIN_DESIRED_SNAKES = 2;
 
 // Bot constants
-BOT_GO_STRAIGHT_PROBABILITY = 0.1; // TODO tweak
+BOT_GO_STRAIGHT_PROBABILITY = 0.1;
 
 // TODO do nice inheritance
 function ServerEngine() { this.subinit(); }
@@ -350,6 +357,9 @@ extend(ServerEngine.prototype, {
         break;
       case MessageType.SET_USER_PROPS:
         user.props = msg.props;
+        break;
+      case MessageType.REQUEST_REFRESH:
+        this.sendSetupMessage(user.client);
         break;
       default:
         console.log(msg.type);
@@ -530,9 +540,9 @@ extend(ServerEngine.prototype, {
 
   broadcastUpdate: function() {
     var update = { type: MessageType.UPDATE,
-               newApples: this.newApples,
-               processedMoves: this.processedMoves,
-               snakeChanges: this.snakeChanges };
+                   newApples: this.newApples,
+                   processedMoves: this.processedMoves,
+                   snakeChanges: this.snakeChanges };
     for (var i = 0; i < this.users.length; i++) {
       var user = this.users[i];
       if (!user.isHuman)
@@ -576,12 +586,17 @@ extend(ClientEngine.prototype, {
   processMessage: function(msg) {
     switch(msg.type) {
       case MessageType.SETUP:
+        var mySnakeId = this.mySnake && this.mySnake.snakeId; // If this is a refresh, we need to remember our snakeId
+        this.mySnake = null;
         // Populate the board
         this.board.setMatrix(msg.board);
         // Read in the snakes
         this.snakes = [];
         for (var i = 0; i < msg.snakes.length; i++) {
-          this.snakes.push(Snake.deserialize(msg.snakes[i]));
+          var snake = Snake.deserialize(msg.snakes[i]);
+          this.snakes.push(snake);
+          if (mySnakeId == snake.snakeId)
+            this.mySnake = snake;
         }
         // this.start();
         break;
@@ -608,7 +623,12 @@ extend(ClientEngine.prototype, {
           if (msg.processedMoves[snakeId])
             this.snakes[i].requestMove(msg.processedMoves[snakeId]);
         }
-        this.processTurn();
+        try {
+          this.processTurn();
+        } catch(e) {
+          console.log("Swallowing Exception in processTurn:", JSON.stringify(e));
+          this.refreshState();
+        }
         break;
       case MessageType.SNAKE_DEAD:
         this.dispatchEvent({type:"snakeDead"});
@@ -643,7 +663,11 @@ extend(ClientEngine.prototype, {
   
   setUserProps: function(newProps) {
     this.client.send({ type: MessageType.SET_USER_PROPS, props: newProps });
-  }
+  },
+
+  refreshState: function() {
+    this.client.send({ type: MessageType.REQUEST_REFRESH });
+  },
 });
 
 
