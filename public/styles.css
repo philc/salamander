@@ -1,7 +1,10 @@
 body {
-  font-family: Monaco,Consolas,Courier,sans-serif;
+  font-family: "Helvetica Neue", "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
   margin: 0;
   background-image: url("/images/desert_dark.png");
+
+  /* Uncomment this to achieve an old-school monospace look: */
+  /* font-family: Monaco,Consolas,Courier,sans-serif;*/
 }
 
 h1 {
@@ -65,24 +68,86 @@ h1 {
   padding: 1em;
 }
 
-/*
- * Start page
- */
 .popup {
   position: absolute;
-  top: 100px;
-  left: 100px;
-  /*height: 100%;*/
-  z-index: 999;
-  opacity: 0.8;
-  width: 400px;
-  /*height: 400px;*/
-  background-color: white;
-  border: 0.5em solid black;
-  text-align: center;
-  padding: 1em;
+  width: 430px;
+  /* TODO(philc): replace with a transparent backgrond image */
+  background-color: #FFE6BF;
+  border: 15px solid #CC9342;
+  padding: 10px;
 }
 
+.centeredPopupContainer {
+  top: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+
+/*
+ * Start screen styles
+ */
+#startScreen { text-align: center; }
+#startScreen p { margin: 16px 0; }
+
+#startScreen p.intro {
+  text-align: center;
+  display: -webkit-box;
+  display: -moz-box;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+}
+
+#startScreen p.intro .contents {
+  text-align: left;
+  display: table-cell;
+}
+
+#startScreen input[name=name] {
+  /* This should be the same width (+ padding) as a#startButton */
+  padding: 4px;
+  width: 192px;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+#startScreen a#startButton {
+  display: block;
+  margin: 0 auto;
+
+  background-image: url(/images/buttonBackground.png);
+  background-repeat: repeat-x;
+
+  border: 3px solid #C1C1C1;
+  padding: 10px;
+  width: 180px;
+
+  text-decoration: none;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: #FFF 1px 1px 1px;
+}
+
+#startScreen a#startButton:hover { border: 3px solid #999; }
+#startScreen a#startButton:active { background-image: url(/images/buttonBackgroundDown.png); }
+
+#startScreen .footer {
+  font-size: 10px;
+  color: #444;
+  margin-bottom: 0px;
+}
+
+#startScreen #logo {
+  position: absolute;
+  top: -58px;
+  left: 4px;
+}
+
+/*
+ * General popup styles. We may no longer need these.
+ */
 .popup a.button {
   display: block;
   width: 100px;

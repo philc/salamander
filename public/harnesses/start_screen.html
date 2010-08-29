@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!-- A harness for tweaking the CSS and aesthetics of snakes displayed in various directions. -->
+<html>
+<head>
+  <title>Snake bodies</title>
+
+  <script src="/js/utils.js"></script>
+  <script src="/js/jquery-1.4.2.js"></script>
+  <link rel="stylesheet" href="/styles.css" type="text/css">
+
+  <style type="text/css" media="screen">
+    .box-left, .box-right {
+      -webkit-box-orient: horizontal;
+      -moz-box-orient: horizontal;
+    }
+    .box-left {
+      -webkit-box-direction: reverse;
+      -moz-box-direction: reverse;
+    }
+    .box-up {
+      -webkit-box-direction: reverse;
+      -moz-box-direction: reverse;
+    }
+    #board {
+      width: 100%;
+      height: 600px;
+      border: 1px solid orange;
+    }
+
+    
+  </style>
+
+  <script>
+    $(document).ready(function() {
+      centerWithinParent($("#startScreen"));
+    });
+  </script>
+</head>
+
+<body>
+  <div id="board"></div>
+
+  <div class="centeredPopupContainer">
+    <div id="startScreen" class="popup">
+      <form>
+        <img src="/images/logo.png" id="logo" />
+        <div id="tagline"><img src="/images/tagline.png" id="tagline" /></div>
+
+        <p class="intro">
+          <span class="contents">
+            Devour your foes and grow to become <br/>
+            the <strong>Black Mamba</strong>. Have no mercy!
+          </span>
+        </p>
+
+        <p>
+          <input type="text" name="name" value="Your nickname" />
+          <a id="startButton" href="#">Enter the Arena</a>
+        </p>
+
+        <p class="footer">For the best gameplay, maximize your browser window.</p>
+      </form>
+    </div>
+  </div>
+</body>
