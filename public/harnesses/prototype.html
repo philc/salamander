@@ -34,9 +34,6 @@
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
       engine = new ClientEngine(window.board);
       engine.registerClient(gameClient);
-      // engine.addSnake("snake1", [5, 1], [1, 1]);
-      // engine.addSnake("snake2", [0, 5], [0, 0]);
-      // engine.start();
 
       // Arrow key control code
       KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // Left, Up, Right, Down
@@ -59,6 +56,7 @@
 
     function startGame() {
       console.log("startGame");
+      engine.startGame();
       $(".popup").hide();
     }
 

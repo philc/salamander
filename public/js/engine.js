@@ -357,10 +357,10 @@ extend(ServerEngine.prototype, {
                snakeChanges: this.snakeChanges };
     for (var i = 0; i < this.users.length; i++) {
       var user = this.users[i];
-      if (update.snakeChanges[user.snake.snakeId])
+      if (user.snake && update.snakeChanges[user.snake.snakeId])
         update.snakeChanges[user.snake.snakeId].isMySnake = true;
       user.client.send(update);
-      if (update.snakeChanges[user.snake.snakeId])
+      if (user.snake && update.snakeChanges[user.snake.snakeId])
         update.snakeChanges[user.snake.snakeId].isMySnake = false;
     }
     this.newApples = [];
@@ -399,8 +399,6 @@ extend(ClientEngine.prototype, {
           this.snakes.push(Snake.deserialize(msg.snakes[i]));
         }
         this.start();
-        // TODO have a start_game button
-        this.client.send({ type: MessageType.START_GAME });
         break;
       case MessageType.GAME_STARTED:
         // TODO remove this as all the information is in UPDATE anyway
@@ -438,6 +436,7 @@ extend(ClientEngine.prototype, {
   },
 
   startGame: function() {
+    console.log("Engine.startGame");
     if (this.mySnake != null)
       return;
     this.client.send({ type: MessageType.START_GAME });        
