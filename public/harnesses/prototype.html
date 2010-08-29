@@ -14,6 +14,7 @@
 
   <script>
     $(document).ready(function() {
+      var autoStart = false;
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
 
@@ -31,8 +32,16 @@
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });
-      $("#startButton").click(function() { $("#start").hide(); engine.start(); })
+      $("#startButton").click(startGame);
+
+      if (autoStart)
+        startGame();
     });
+
+    function startGame() {
+      $("#start").hide();
+      engine.start();
+    }
 
     function addPageStyle(css, head) {
       var style;
