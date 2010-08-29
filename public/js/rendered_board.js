@@ -90,6 +90,7 @@ extend(RenderedBoard.prototype, {
 
     setTimeout(function() {
       jQuery.each(bodyCells, function(i, element) {
+        element.css("borderRadius", 3);
         element.animate(animationProperties,
             { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
       });
