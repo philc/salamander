@@ -113,13 +113,7 @@ h1 {
   display: table-cell;
 }
 
-#endScreen {
-  height: 150px;
-}
-
-#endScreen .button {
-  width: 210px;
-}
+#endScreen .button { width: 210px; }
 
 #startScreen input[name=name] {
   /* This should be the same width (+ padding) as a#startButton */
