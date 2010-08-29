@@ -110,6 +110,7 @@ Snake.prototype = {
   },
   
   die: function() {
+    this.isDead = true;
     for (var i = this.deathCallbacks.length - 1; i >= 0; i--){
       this.deathCallbacks[i](this);
     };
@@ -322,7 +323,7 @@ extend(ServerEngine.prototype, {
   unregisterClient: function(client) {
     for (var i = 0; i < this.users.length; i++) {
       if (this.users[i].client == client)
-        this.removeUser(this.users[i]);
+        this.users.splice(i, 1);
     }
   },
 
@@ -334,7 +335,6 @@ extend(ServerEngine.prototype, {
         user.snake.addDeathCallback(function(snake){
           user.snake = null;
           user.client.send({ type: MessageType.SNAKE_DEAD });
-          this.addBots(Math.max(MIN_DESIRED_SNAKES - this.snakes.length, 0));
         }.bind(this));
         break;
       case MessageType.REQUEST_MOVE:
@@ -437,10 +437,20 @@ extend(ServerEngine.prototype, {
       var user = { "isHuman": false, "client": null, "snake": snake,
                    "props": { "name": Snake.randomName() }};
       this.users.push(user);
-      snake.addDeathCallback(function(snake) {
-        this.removeUser(user);
-        this.addBots(Math.max(MIN_DESIRED_SNAKES - this.snakes.length, 0));
-      }.bind(this));
+    }
+  },
+
+  pruneBotUsers: function() {
+    var deadBotFound = true;
+    while (deadBotFound) {
+      deadBotFound = false;
+      for (var i = 0; i < this.users.length; i++) {
+        if (!this.users[i].isHuman && (!this.users[i].snake || this.users[i].snake.isDead)) {
+          this.users.splice(i, 1);
+          deadBotFound = true;
+          break;
+        }
+      }
     }
   },
 
@@ -462,6 +472,7 @@ extend(ServerEngine.prototype, {
   },
 
   preProcessTurn: function() {
+    this.addBots(Math.max(MIN_DESIRED_SNAKES - this.snakes.length, 0));
     // Compute bot moves
     for (var i = 0; i < this.snakes.length; i++) {
       var snake = this.snakes[i];
@@ -503,6 +514,7 @@ extend(ServerEngine.prototype, {
   },
 
   postProcessTurn: function() {
+    this.pruneBotUsers();
     this.addRandomApples(DESIRED_APPLES - this.allApples.length);
     this.broadcastUpdate();
   },
@@ -529,12 +541,6 @@ extend(ServerEngine.prototype, {
     this.snakeChanges = {};
   },
 
-  removeUser: function(user) {
-    for (var i = 0; i < this.users.length; i++) {
-      if (this.users[i] == user)
-        this.users.splice(i, 1);
-    }
-  },
 });
 
 
