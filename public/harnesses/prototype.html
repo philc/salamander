@@ -52,8 +52,10 @@
       KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // Left, Up, Right, Down
       $(document).keydown(function(e) {
         direction = KEYCODE_TO_DIRECTION[e.keyCode];
-        if (direction)
+        if (direction) {
           engine.moveSnake(direction);
+          e.preventDefault();
+        }
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });
