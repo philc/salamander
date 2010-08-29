@@ -14,8 +14,6 @@ h1 {
 }
 #board {
   border: 1px solid #ddd;
-  width: 400px;
-  height: 400px;
   position: relative;
 }
 #board div {

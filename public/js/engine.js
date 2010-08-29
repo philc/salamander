@@ -138,8 +138,8 @@ Snake.deserialize = function(data) {
 
 
 // Default values
-BOARD_WIDTH = 40;
-BOARD_HEIGHT = 40;
+BOARD_WIDTH = 100;
+BOARD_HEIGHT = 60;
 DESIRED_APPLES = 10;
 TURN_DURATION = 250;
 

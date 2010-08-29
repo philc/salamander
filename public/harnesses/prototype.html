@@ -50,6 +50,8 @@
 
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
+      addPageStyle("#board { width: " + (BOARD_WIDTH * cellSize) + "px; height: " +
+                   (BOARD_HEIGHT * cellSize) + "px; }");
 
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
       engine = new ClientEngine(window.board);
