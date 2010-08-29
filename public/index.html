@@ -84,13 +84,14 @@
       }
 
       $("#startScreen form").submit(function(event) {
+        event.preventDefault();
         hideStartScreen();
         startGameEvent(event, $("#startScreen input[name=name]").val());
       });
 
       $("#endScreen form").submit(function(event) {
-        hideEndScreen();
         event.preventDefault();
+        hideEndScreen();
         window.location = window.location.pathname.toString() + "?" + RELOAD_STRING + "=true";
       });
 
