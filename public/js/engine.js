@@ -177,6 +177,7 @@ Engine.prototype = {
 
   processTurn: function() {
     this.processedMoves = {};
+    var tombstones = []; // List of "tombstones" marking the heads of snakes that died this turn.
     for (var i = 0; i < this.snakes.length; i++) {
       var snake = this.snakes[i];
       var requestedMove = snake.popNextMove();
@@ -192,8 +193,21 @@ Engine.prototype = {
         continue;
       }
       var cell = this.board.get(newHead[0], newHead[1]);
-      if (cell.type == SNAKE) {
+      if (cell.type == SNAKE || cell.isTombstone) {
         this.killSnakeAtIndex(i);
+        if (cell.segment == "head")
+          // Kill the other snake at this cell if necessary
+          for (var j = 0; j < this.snakes.length; j++)
+            if (this.snakes[j].snakeId == cell.snakeId) {
+              if (j < i)
+                this.killSnakeAtIndex(j);
+              else {
+                // Place a tombstone at the cell of oldHead
+                // TODO Technically we should place tombstones all along the body of the dead snake
+                this.board.get(oldHead[0], oldHead[1]).isTombstone = true;
+                tombstones.push(oldHead);
+              }
+            }
         continue;
       }
       else {
@@ -231,6 +245,10 @@ Engine.prototype = {
         }
       }
     }
+
+    // Clean out all tombstones
+    for (var i = 0; i < tombstones.length; i++)
+      delete this.board.get(tombstone[i][0], tombstone[i][1]).isTombstone;
 
     if (this.isServer) {
       this.addRandomApples(DESIRED_APPLES - this.totalApples);
