@@ -17,11 +17,17 @@ extend(RenderedBoard.prototype, {
       classes.push(cell.direction);
     if (cell.segment)
       classes.push(cell.segment);
-    this.drawCell(x, y, classes);
+    this.drawCell(x, y, classes, cell.color);
   },
 
-  drawCell: function(x, y, classNames) {
+  drawCell: function(x, y, classNames, color) {
     this.divs[x][y][0].className = classNames.join(" ");
+    if (color) {
+      this.divs[x][y].css({backgroundColor: color});
+    }
+    else {
+      this.divs[x][y].css({backgroundColor: "transparent"});
+    }
   },
 
   /*

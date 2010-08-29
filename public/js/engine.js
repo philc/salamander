@@ -5,6 +5,8 @@ APPLE = 1;
 SNAKE = 2;
 OBSTACLE = 3;
 
+var COLORS = ["#abc","#cde","#123","#1e1","#59f", "#9b6", "#b38", "#a3c"];
+
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
   init: function(width, height, renderedBoard) {
@@ -45,11 +47,11 @@ Board.prototype = {
 };
 
 
-function Snake(snakeId, articulations, size, desiredSize, requestedMoves) {
-  this.init(snakeId, articulations, size, desiredSize, requestedMoves);
+function Snake(snakeId, articulations, size, desiredSize, requestedMoves, color) {
+  this.init(snakeId, articulations, size, desiredSize, requestedMoves, color);
 }
 Snake.prototype = {
-  init: function(snakeId, articulations, size, desiredSize, requestedMoves) {
+  init: function(snakeId, articulations, size, desiredSize, requestedMoves, color) {
     this.snakeId = snakeId;
     this.articulations = articulations;
     this.size = size;
@@ -57,6 +59,7 @@ Snake.prototype = {
     this.requestedMoves = requestedMoves;
     this.deathCallbacks = [];
     this.isBot = false;
+    this.color = color;
   },
 
   head: function() { return this.articulations[0]; },
@@ -123,7 +126,7 @@ Snake.prototype = {
 Snake.deserialize = function(data) {
   var object = eval("(" + data + ")");
   var snake = new Snake(object.snakeId, object.articulations, object.size,
-                        object.desiredSize, object.requestedMoves);
+                        object.desiredSize, object.requestedMoves, object.color);
   return snake;
 };
 RANDOM_NAMES = [
@@ -134,6 +137,10 @@ RANDOM_NAMES = [
 Snake.randomName = function() {
   var index = Math.floor(Math.random() * RANDOM_NAMES.length);
   return RANDOM_NAMES[index];
+}
+Snake.randomColor = function() {
+  var index = Math.floor(Math.random() * COLORS.length);
+  return COLORS[index];
 }
 
 
@@ -208,9 +215,10 @@ Engine.prototype = {
             if (this.allApples[j][0] == newHead[0] && this.allApples[j][1] == newHead[1])
               this.allApples.splice(j, 1);
         }
-        this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "body" });
+        this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "body",
+          color: snake.color});
         this.board.set(newHead[0], newHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "head",
-            direction: GridUtils.vectorToString(headDirection) });
+            direction: GridUtils.vectorToString(headDirection), color: snake.color });
         if (requestedMove) { // The snake has turned
           snake.articulations = [newHead].concat(snake.articulations);
         }
@@ -344,6 +352,7 @@ extend(ServerEngine.prototype, {
         user.props = msg.props;
         break;
       default:
+        console.log(msg.type);
         throw "Unrecognized message type " + msg.type;
     }
   },
@@ -421,7 +430,8 @@ extend(ServerEngine.prototype, {
       }.bind(this));
     }
 
-    var snake = new Snake(snakeId, [head, tail], SNAKE_START_SIZE, SNAKE_START_SIZE, []);
+    var snake = new Snake(snakeId, [head, tail], SNAKE_START_SIZE, SNAKE_START_SIZE, [], 
+      Snake.randomColor());
     this.snakes.push(snake);
     this.addSnakeToBoard(snake);
     this.snakeChanges[snakeId] = { type: SNAKE_ADDITION, snake: snake.serialize() };    
