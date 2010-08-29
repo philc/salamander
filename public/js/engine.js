@@ -407,9 +407,7 @@ extend(ServerEngine.prototype, {
   },
 
   broadcastUpdate: function() {
-    if (this.newApples.length > 0)
-      console.log("SENDING NEW APPLES", this.newApples.length);
-    update = { type: MessageType.UPDATE,
+    var update = { type: MessageType.UPDATE,
                newApples: this.newApples,
                processedMoves: this.processedMoves,
                snakeChanges: this.snakeChanges };
@@ -504,8 +502,6 @@ extend(ClientEngine.prototype, {
   },
 
   addSpecificApples: function(newApples) {
-    if (newApples.length > 0)
-      console.log("RECVED APPLES", newApples.length);
     for (var i = 0; i < newApples.length; i++) {
       var point = newApples[i];
       this.board.set(point[0], point[1], {type: APPLE});
