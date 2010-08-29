@@ -84,6 +84,7 @@ Snake.prototype = {
     this.desiredSize += 2;
   },
 
+  // Returns whether or not the move is possible
   requestMove: function(requestedDirection) {
     var currentDirection = this.computeHeadDirection();
     if (requestedDirection[0] * currentDirection[0] +
@@ -221,15 +222,6 @@ Engine.prototype = {
     }.bind(this));
   },
 
-  moveSnake: function(snakeId, requestedDirection) {
-    for (var i = 0; i < this.snakes.length; i++) {
-      var snake = this.snakes[i];
-      if (snake.snakeId == snakeId) {
-        snake.requestMove(requestedDirection);
-      }
-    }
-  },
-
   togglePause: function() {
     if (this.turnTimer) {
       clearTimeout(this.turnTimer);
@@ -249,6 +241,7 @@ var MessageType = {
 
   // Sent from client to server
   START_GAME: "startGame",
+  REQUEST_MOVE: "requestMove",
 };
 
 SNAKE_START_SIZE = 3;
@@ -287,11 +280,15 @@ extend(ServerEngine.prototype, {
   },
 
   processMessage: function(msg, user) {
+    console.log("processMessage", JSON.stringify(msg));
     switch(msg.type) {
       case MessageType.START_GAME:
         // Create a snake for the user and let them know
         user.snake = this.createSnake();
         user.client.send({ type: MessageType.GAME_STARTED, snake: user.snake.serialize() });
+        break;
+      case MessageType.REQUEST_MOVE:
+        user.snake.requestMove(msg.direction);
         break;
       default:
         throw "Unrecognized message type " + msg.type;
@@ -340,6 +337,7 @@ extend(ClientEngine.prototype, {
   subinit: function(renderedBoard) {
     this.init(renderedBoard);
     this.isServer = false;
+    this.mySnake = null;
   },
 
   registerClient: function(client) {
@@ -370,12 +368,20 @@ extend(ClientEngine.prototype, {
         var snake = Snake.deserialize(msg.snake);
         this.snakes.push(snake);
         this.addSnakeToBoard(snake);
-        // TODO Let the user control this snake
+        this.mySnake = snake;
         break;
       default:
         throw "Unrecognized message type " + msg.type;
     }
-  }
+  },
+
+  moveSnake: function(requestedDirection) {
+    if (this.mySnake == null)
+      return;
+    if (this.mySnake.requestMove(requestedDirection)) {
+      this.client.send({ type: MessageType.REQUEST_MOVE, direction: requestedDirection });    
+    }
+  },
 });
 
 
