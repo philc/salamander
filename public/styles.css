@@ -35,6 +35,8 @@ h1 {
 
 .flash1 { background-color: #777; }
 .flash2 { background-color: #ddd; }
+.tongue { background-image: url(/images/tongue.png); }
+
 /*
  * Heads up display. 
  */

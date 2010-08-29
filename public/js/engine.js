@@ -205,9 +205,12 @@ Engine.prototype = {
         }
       }
     }
+
     if (this.isServer) {
       this.addRandomApples(DESIRED_APPLES - this.totalApples);
       this.broadcastUpdate();
+    } else {
+      this.dispatchEvent({ type: "turnProcessed" });
     }
   },
 
@@ -378,6 +381,8 @@ extend(ClientEngine.prototype, {
     this.init(renderedBoard);
     this.isServer = false;
     this.mySnake = null;
+    this.addEventListener("turnProcessed",
+        function() { this.board.renderedBoard.renderSnakeTongues(this.snakes); }.bind(this));
   },
 
   registerClient: function(client) {
