@@ -3,7 +3,7 @@ var http = require('http'),
 	fs = require('fs'),
 	sys = require('sys'),
 	socket = require('./socket_node/'),
-	Engine = require('./public/js/engine').Engine;
+	ServerEngine = require('./public/js/engine').ServerEngine;
 	protocol = require('./public/js/protocol').protocol;
 
 var PUBLIC_DIR = "/public";
@@ -82,17 +82,18 @@ var server = http.createServer(function (req, res) {
  
 server.listen(80);
 
-// var engine = new Engine(null);
-// engine.addSnake("snake1", 5, 1, 1, 1);
-// engine.addSnake("snake2", 0, 5, 0, 0);
-// engine.start();
+var engine = new ServerEngine(null);
+engine.start();
 
 var io = socket.listen(server);
 
 var clients = {};//map of all clients to gameClient objects
 
 io.on('connection', function(client){
-  clients[client] = new protocol.GameClient(client);
+  var gameClient = new protocol.GameClient(client);
+  clients[client] = gameClient;
+  
+  engine.registerClient(gameClient);
   
 	//client.send({ buffer: buffer });
 	//client.broadcast({ announcement: client.sessionId + ' connected' });
