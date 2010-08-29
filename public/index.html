@@ -5,6 +5,9 @@
 
   <script type="text/javascript" charset="utf-8">
       var exports = {};
+      if (typeof(console) == undefined) {
+        console = {log: function() {}}
+      }
   </script>
   <script src="/js/utils.js"></script>
   <script type="text/javascript" src="/js/socket/socket.io.js"></script>
