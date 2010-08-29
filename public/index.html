@@ -16,7 +16,7 @@
 
   <script>
     io.setPath('/js/socket/');
-    var RELOAD_STRING = "reload";
+    var RELOAD_STRING = "replay";
 
     // Add these styles to the page early so the page will take shape right away and the start screen
     // will properly center itself.
@@ -28,16 +28,10 @@
                  (BOARD_HEIGHT * cellSize) + "px; }");
 
     $(document).ready(function() {
-      //init page state
       var reloaded = document.location.toString().indexOf(RELOAD_STRING) >= 0;
-      // if (reloaded) {
-      //   $("#restartName").focus();
-      //   $("#restart").show();
-      // }
-      // else {
-      //   $("#startName").focus();
-      //   $("#start").fadeIn();
-      // }
+      // Used is used for development to skip the start screen.
+      var autoStart = document.location.toString().indexOf("autostart") >= 0;
+      autostart = autoStart || reloaded;
 
       if (!autoStart)
         showStartScreen();
@@ -55,21 +49,11 @@
         }
       });
 
-      // Used is used for development to skip the start screen.
-      var autoStart = document.location.toString().indexOf("autostart") >= 0;
-
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
       engine = new ClientEngine(window.board);
       engine.registerClient(gameClient);
       engine.addEventListener("snakeDead", function() {
         setTimeout(function() {
-          // TODO(philc):
-          // if (reloaded) {
-          //   window.location = window.location;
-          // }
-          // else {
-          //   window.location = window.location+"?"+RELOAD_STRING+"=yes";
-          // }
           showEndScreen();
           myPrevTitle = snakeTitles["0"];
         }, 1800);
@@ -100,7 +84,8 @@
 
       $("#endScreen form").submit(function(event) {
         hideEndScreen();
-        startGameEvent(event, $("#startScreen input[name=name]").val());
+        event.preventDefault();
+        window.location = window.location.pathname.toString() + "?" + RELOAD_STRING + "=true";
       });
 
       $("#startScreen #startButton").click(function(event) {
