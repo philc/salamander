@@ -1,5 +1,6 @@
 body {
   font-family: Monaco,courier,sans-serif;
+  margin: 0;
 }
 
 h1 {
@@ -17,7 +18,19 @@ h1 {
   width: 400px;
   height: 400px;
   position: relative;
+  background: url(/images/desert_light.png);
 }
+
+/*
+ * Our obstacles are cactuses which are 2x3. An obstacle corner is the upper left corner cell. It's the only
+ * cell that is drawn, even though an obstacle occupies many cells. This is because we only want to draw the
+ * obstacle bitmap once.
+ */
+.obstacleCorner {
+  background: transparent url(/images/cactus.png) no-repeat;
+  z-index: 100; /* Make it higher than the surrounding cells */
+}
+
 #board div {
   position: absolute;
 }
