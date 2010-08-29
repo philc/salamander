@@ -39,3 +39,11 @@ EventDispatcher = {
       callbacks[i].call(null, event);
   }
 }
+
+/*
+ * Display helpers
+ */
+centerWithinParent = function(element) {
+  element.css("top", (element.parent().outerHeight() - element.outerHeight()) / 2);
+  element.css("left", (element.parent().outerWidth() - element.outerWidth()) / 2);
+}
