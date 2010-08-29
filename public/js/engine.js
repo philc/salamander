@@ -47,7 +47,12 @@ Board.prototype = {
       for(var j = 0; j < matrix[0].length; j++)
         if (this.renderedBoard)
           this.renderedBoard.set(i, j, matrix[i][j]);
-  }
+  },
+
+  renderDeath: function(snake) {
+    if (this.renderedBoard)
+      this.renderedBoard.renderDeath(snake);
+  },
 };
 
 
@@ -209,6 +214,7 @@ Engine.prototype = {
   killSnakeAtIndex: function(index) {
     var snake = this.snakes[index];
     this.snakes.splice(index, 1);
+    this.board.renderDeath(snake);
     // Remove the snake's cells
     GridUtils.iterateAlongArticulations(snake.articulations, function(x, y) {
       this.board.set(x, y, { type: EMPTY });

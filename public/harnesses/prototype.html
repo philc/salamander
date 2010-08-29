@@ -27,6 +27,7 @@
           }
       });
 
+      var autoStart = false;
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
 
@@ -46,7 +47,16 @@
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });
+      $("#startButton").click(startGame);
+
+      if (autoStart)
+        startGame();
     });
+
+    function startGame() {
+      $("#start").hide();
+      engine.start();
+    }
 
     function addPageStyle(css, head) {
       var style;
@@ -66,6 +76,13 @@
 
   <div id="hud">
     <button id="pauseButton">Pause</button>
+  </div>
+  
+  <div id="start">
+      <div class="innerBox">
+      <h1>Welcome to MO-SNAKES-MO-PROBLEMS!</h1>
+      <button id="startButton">Start</button>
+    </div>
   </div>
 </body>
 </html>

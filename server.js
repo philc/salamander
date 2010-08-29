@@ -4,7 +4,8 @@ var http = require('http'),
 	sys = require('sys'),
 	socket = require('./socket_node/'),
 	ServerEngine = require('./public/js/engine').ServerEngine;
-	protocol = require('./public/js/protocol').protocol;
+	protocol = require('./public/js/protocol').protocol,
+	utils = require("./public/js/utils").utils;
 
 var PUBLIC_DIR = "/public";
 
