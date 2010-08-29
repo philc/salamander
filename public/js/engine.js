@@ -47,18 +47,25 @@ Board.prototype = {
       for(var j = 0; j < matrix[0].length; j++)
         if (this.renderedBoard)
           this.renderedBoard.set(i, j, matrix[i][j]);
-  }
+  },
+
+  renderDeath: function(snake) {
+    if (this.renderedBoard)
+      this.renderedBoard.renderDeath(snake);
+  },
 };
 
 
-function Snake() { this.init(); }
+function Snake(snakeId, articulations, size, desiredSize, requestedMove) {
+  this.init(snakeId, articulations, size, desiredSize, requestedMove);
+}
 Snake.prototype = {
-  init: function() {
-    this.snakeId = null;
-    this.articulations = [];
-    this.size = 10;
-    this.desiredSize = this.size;
-    this.requestedMove = null;
+  init: function(snakeId, articulations, size, desiredSize, requestedMove) {
+    this.snakeId = snakeId;
+    this.articulations = articulations;
+    this.size = size;
+    this.desiredSize = desiredSize;
+    this.requestedMove = requestedMove;
   },
 
   head: function() { return this.articulations[0]; },
@@ -94,14 +101,10 @@ Snake.prototype = {
       requestedMove: this.requestedMove
     };
   }
-};
+}
 Snake.deserialize = function(data) {
-  var snake = new Snake();
-  this.snakeId = data.snakeId;
-  this.articulations = data.articulations;
-  this.size = data.size;
-  this.desiredSize = data.desiredSize;
-  this.requestedMove = data.requestedMove;
+  var snake = new Snake(data.snakeId, data.articulations, data.size,
+                        data.desiredSize, data.requestedMove);
   return snake;
 };
 
@@ -118,8 +121,6 @@ Engine.prototype = {
     this.board = new Board(BOARD_WIDTH, BOARD_HEIGHT, renderedBoard);
     this.snakes = [];
     this.totalApples = 0;
-
-    this.addApples(DESIRED_APPLES);
   },
 
   addApples: function(numApples) {
@@ -134,21 +135,16 @@ Engine.prototype = {
     }
   },
 
-  // Args: head and tail are x,y pairs
-  addSnake: function(snakeId, head, tail) {
-    var snake = new Snake();
+  addSnakeToBoard: function(snake) {
+    var head = snake.articulations[0];
+    var tail = snake.articulations[1];
     if (head[0] != tail[0] && head[1] != tail[1])
       throw "Trying to add diagonal snake";
     GridUtils.iterateAlongLine(head, tail, function(x, y) {
       if (this.board.get(x, y).type != EMPTY)
         throw "Trying to add snake to occupied cell";
-      this.board.set(x, y, {type: SNAKE, snakeId: snakeId});
-      snake.size += 1;
+      this.board.set(x, y, {type: SNAKE, snakeId: snake.snakeId});
     }.bind(this));
-    snake.snakeId = snakeId;
-    snake.articulations = [head, tail];
-    snake.desiredSize = snake.size;
-    this.snakes.push(snake);
   },
 
   start: function() {
@@ -211,13 +207,14 @@ Engine.prototype = {
         }
       }
     }
-    // TODO Only call this on server
-    this.addApples(DESIRED_APPLES - this.totalApples);
+    if (this.isServer)
+      this.addApples(DESIRED_APPLES - this.totalApples);
   },
 
   killSnakeAtIndex: function(index) {
     var snake = this.snakes[index];
     this.snakes.splice(index, 1);
+    this.board.renderDeath(snake);
     // Remove the snake's cells
     GridUtils.iterateAlongArticulations(snake.articulations, function(x, y) {
       this.board.set(x, y, { type: EMPTY });
@@ -247,12 +244,14 @@ Engine.prototype = {
 
 var MessageType = {
   // Sent from server to client
-  SETUP: 0,
-  GAME_STARTED: 1,
+  SETUP: "setup",
+  GAME_STARTED: "gameStarted",
 
   // Sent from client to server
-  START_GAME: 10,
+  START_GAME: "startGame",
 };
+
+SNAKE_START_SIZE = 3;
 
 // TODO do nice inheritance
 function ServerEngine() { this.subinit(); }
@@ -260,7 +259,9 @@ extend(ServerEngine.prototype, Engine.prototype);
 extend(ServerEngine.prototype, {
   subinit: function() {
     this.init(null);
+    this.isServer = true;
     this.users = [];
+    this.addApples(DESIRED_APPLES);
   },
 
   registerClient: function(client) {
@@ -295,6 +296,40 @@ extend(ServerEngine.prototype, {
       default:
         throw "Unrecognized message type " + msg.type;
     }
+  },
+
+  // Creates a new snake object, and adds it to the board and snakes list, and returns it.
+  createSnake: function () {
+    // Find unused ID
+    var snakeId = null;
+    while (snakeId == null) {
+      snakeId = Math.floor(Math.random() * 1000);
+      for (var i = 0; i < this.snakes.length; i++)
+        if (this.snakes[i].snakeId === snakeId)
+          snakeId = null;
+    }
+
+    // Find free squares
+    var head = null;
+    var tail = null;
+    while (head == null || tail == null) {
+      head = [Math.floor(Math.random() * BOARD_WIDTH), Math.floor(Math.random() * BOARD_HEIGHT)];
+      tail = [head[0], head[1]];
+      var axis = Math.floor(Math.random() * 2);
+      var dist = ((axis == 0) ? BOARD_WIDTH : BOARD_HEIGHT) / 2 - head[axis]; // Signed distance to center line
+      tail[axis] = head[axis] - (dist == 0 ? 1 : (dist / Math.abs(dist))) * SNAKE_START_SIZE;
+      GridUtils.iterateAlongLine(head, tail, function(x, y) {
+        if (GridUtils.outOfBounds([x, y], BOARD_WIDTH, BOARD_HEIGHT) ||
+            this.board.get(x, y).type != EMPTY)
+          head = null;
+      }.bind(this));
+    }
+
+    var snake = new Snake(snakeId, [head, tail], SNAKE_START_SIZE, SNAKE_START_SIZE, null);
+
+    this.snakes.push(snake);
+    this.addSnakeToBoard(snake);
+    return snake;
   }
 });
 
@@ -304,6 +339,7 @@ extend(ClientEngine.prototype, Engine.prototype);
 extend(ClientEngine.prototype, {
   subinit: function(renderedBoard) {
     this.init(renderedBoard);
+    this.isServer = false;
   },
 
   registerClient: function(client) {
@@ -316,6 +352,7 @@ extend(ClientEngine.prototype, {
   },
 
   processMessage: function(msg) {
+    console.log("processMessage", msg);
     switch(msg.type) {
       case MessageType.SETUP:
         // Populate the board
@@ -325,9 +362,14 @@ extend(ClientEngine.prototype, {
         for (var i = 0; i < msg.snakes.length; i++) {
           this.snakes.push(Snake.deserialize(msg.snakes[i]));
         }
+        this.start();
+        // TODO have a start_game button
+        this.client.send({ type: MessageType.START_GAME });
         break;
       case MessageType.GAME_STARTED:
-        this.snakes.push(Snake.deserialize(msg.snake));
+        var snake = Snake.deserialize(msg.snake);
+        this.snakes.push(snake);
+        this.addSnakeToBoard(snake);
         // TODO Let the user control this snake
         break;
       default:
@@ -404,4 +446,4 @@ var GridUtils = {
 
 };
 
-exports.Engine = Engine;
+exports.ServerEngine = ServerEngine;

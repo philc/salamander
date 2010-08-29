@@ -10,7 +10,7 @@ function RenderedBoard(width, height, cellSize, boardElement) {
 
 extend(RenderedBoard.prototype, {
   set: function(x, y, cell) {
-    var classes = [this.TYPE_TO_CLASS[cell.type], cell.snakeId];
+    var classes = [this.TYPE_TO_CLASS[cell.type], cell.snakeId ? "snake1" : null];// TODO HACK! cell.snakeId];
     if (cell.direction)
       classes.push(cell.direction);
     if (cell.segment)
@@ -20,6 +20,33 @@ extend(RenderedBoard.prototype, {
 
   drawCell: function(x, y, classNames) {
     this.divs[x][y][0].className = classNames.join(" ");
+  },
+
+  /*
+   * To render the snake's death, clone all of its body divs and then animate them fading out.
+   */
+  renderDeath: function(snake) {
+    var bodyCells = [];
+    GridUtils.iterateAlongArticulations(snake.articulations, function(x, y) {
+      bodyCells.push(this.divs[x][y].clone());
+    }.bind(this));
+
+    // Do not render the snake's head during death. The head's background image doesn't look good.
+    bodyCells[0].removeClass("head").addClass("body");
+
+    var animationProperties = {
+      opacity: 0,
+      width: 0,
+      height: 0,
+      // As the snake body shrinks, we want it to stay centered in the cell
+      marginLeft: this.cellSize / 2,
+      marginTop: this.cellSize / 2
+    };
+
+    for (var i = 0; i < bodyCells.length; i++) {
+      this.boardElement.append(bodyCells[i]);
+      bodyCells[i].animate(animationProperties, { duration: 1500, complete: function() { $(this).remove(); }});
+    }
   },
 
   /* Creates and returns a widthxheight matrix of divs representing the game's surface. */

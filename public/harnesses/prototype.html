@@ -3,24 +3,40 @@
 <head>
   <title>Salamander</title>
 
-  <script>
-    var exports = {};
+  <script type="text/javascript" charset="utf-8">
+      var exports = {};
   </script>
-
+  <script type="text/javascript" src="/js/socket/socket.io.js"></script>
+  <script type="text/javascript" src="/js/protocol.js"></script>
   <script src="/js/jquery-1.4.2.js"></script>
   <script src="/js/engine.js"></script>
   <script src="/js/rendered_board.js"></script>
   <link rel="stylesheet" href="/styles.css" type="text/css">
 
   <script>
-    $(document).ready(function() {
+    io.setPath('/js/socket/');
+
+    $(document).ready(function() {      
+      var socket = new io.Socket(null, {port: 80});
+      socket.connect();
+      var gameClient = new protocol.GameClient(socket);
+      socket.on('message', function(msg){
+          var type = protocol.messageType(msg);
+          if (type === protocol.Types.GameState) {
+              gameClient.receive(protocol.messageData(msg));
+          }
+      });
+
+      var autoStart = false;//dev
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
 
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
       engine = new ClientEngine(window.board);
-      engine.addSnake("snake1", [5, 1], [1, 1]);
-      engine.addSnake("snake2", [0, 5], [0, 0]);
+      engine.registerClient(gameClient);
+      // engine.addSnake("snake1", [5, 1], [1, 1]);
+      // engine.addSnake("snake2", [0, 5], [0, 0]);
+      // engine.start();
 
       // Arrow key control code
       KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // Left, Up, Right, Down
@@ -32,11 +48,19 @@
 
       $("#pauseButton").click(function() { engine.togglePause(); });
       $(".startButton").click(function(event) {
-         $("#start").hide(); 
-         engine.start(); 
-         event.preventDefault(); 
+        if (!autoStart) {
+          startGame();
+        }
+        event.preventDefault(); 
       });
+      
+      if (autoStart) { startGame(); }
     });
+
+    function startGame() {
+      console.log("startgame");
+      $("#start").hide();
+    }
 
     function addPageStyle(css, head) {
       var style;
