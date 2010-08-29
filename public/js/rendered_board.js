@@ -81,12 +81,12 @@ extend(RenderedBoard.prototype, {
     bodyCells[0].removeClass("head").addClass("body");
 
     var animationProperties = {
-      opacity: 0,
       width: 0,
-      height: 0,
-      // As the snake body shrinks, we want it to stay centered in the cell
-      marginLeft: this.cellSize / 2,
-      marginTop: this.cellSize / 2
+      height: 0
+      // As the snake body shrinks, we want it to stay centered in the cell.
+      // NOTE(philc): turning this off for now for performance reasons.
+      // marginLeft: this.cellSize / 2,
+      // marginTop: this.cellSize / 2
     };
 
     jQuery.each(bodyCells, function(i, cell) {
@@ -94,13 +94,19 @@ extend(RenderedBoard.prototype, {
       this.animateDeathFlash(cell);
     }.bind(this));
 
-    setTimeout(function() {
-      jQuery.each(bodyCells, function(i, element) {
-        element.css("borderRadius", 3);
-        element.animate(animationProperties,
-            { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
-      });
-    }, 100);
+    if (jQuery.browser.webkit) {
+      setTimeout(function() {
+        jQuery.each(bodyCells, function(i, element) {
+          element.css("borderRadius", 3);
+          element.animate(animationProperties,
+              { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
+        });
+      }, 300);
+    } else {
+      setTimeout(function() {
+        jQuery.each(bodyCells, function(i, element) { $(element).remove(); });
+      }, 300);
+    }
   },
 
   animateDeathFlash: function(element) {

@@ -46,12 +46,21 @@ h1 {
 
 .head { background-image: url(/images/head.png); }
 
-#board .left { -webkit-transform: rotate(-90deg); }
-#board .right { -webkit-transform: rotate(90deg); }
-#board .down { -webkit-transform: rotate(180deg); }
+#board .left {
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+}
+#board .right {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+}
+#board .down {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+}
 
-.flash1 { background-color: #777; }
-.flash2 { background-color: #ddd; }
+.flash1, .flash1 *[style] { background-color: #777 !important; }
+.flash2, .flash2 *[style]  { background-color: #ddd !important; }
 .tongue { background-image: url(/images/tongue.png); }
 
 /*
