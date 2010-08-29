@@ -169,7 +169,7 @@ h1 {
   padding: 6px;
   /* The heads up display should be on top of the start screen popup; otherwise you cannot click the Vote
      link. */
-  z-index: 1100;
+  z-index: 1001;
 }
 
 h2 {
@@ -186,6 +186,9 @@ p#voteButton {
 }
 #voteButton img {
   margin-top: -6px;
+}
+#twitterInfo {
+  font-size: 12px;
 }
 
 .me .middle {
