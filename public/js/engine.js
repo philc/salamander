@@ -149,7 +149,6 @@ Snake.randomColor = function() {
     Snake.colorIndex = 0;
     color = COLORS[Snake.colorIndex];
   }
-  console.log(color);
   return color;
 }
 
@@ -197,7 +196,6 @@ Engine.prototype = {
       var headDirection = requestedMove || snake.computeHeadDirection();
       var oldHead = snake.head();
       var newHead = GridUtils.addVectorToPoint(snake.head(), headDirection);
-      // console.log(newHead[0], newHead[1]);
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
         if (!this.isServer)
           throw "Trying to kill snake which is alive on the server";
@@ -301,7 +299,7 @@ var MessageType = {
   // Sent from server to client
   SETUP: "setup",
   UPDATE: "update",
-  SNAKE_DEAD: "sankeDead",
+  SNAKE_DEAD: "snakeDead",
 
   // Sent from client to server
   SET_USER_PROPS: "setUserProps",
@@ -611,32 +609,37 @@ extend(ClientEngine.prototype, {
         // this.start();
         break;
       case MessageType.UPDATE:
-        // TODO Check for conflicts
-        this.addSpecificApples(msg.newApples);
-        // Process snake additions
-        for (var snakeId in msg.snakeChanges) {
-          if (msg.snakeChanges[snakeId].type == SNAKE_ADDITION) {
-            var snake = Snake.deserialize(msg.snakeChanges[snakeId].snake);
-            this.snakes.push(snake);
-            this.addSnakeToBoard(snake);
-            if (msg.snakeChanges[snakeId].isMySnake) {
-              this.mySnake = snake;
-              console.log(snake);
+        try {
+          // TODO Check for conflicts
+          this.addSpecificApples(msg.newApples);
+          // Process snake additions and removals
+          for (var snakeId in msg.snakeChanges) {
+            if (msg.snakeChanges[snakeId].type == SNAKE_ADDITION) {
+              var snake = Snake.deserialize(msg.snakeChanges[snakeId].snake);
+              this.snakes.push(snake);
+              this.addSnakeToBoard(snake);
+              if (msg.snakeChanges[snakeId].isMySnake) {
+                this.mySnake = snake;
+              }
+            }
+            if (msg.snakeChanges[snakeId].type == SNAKE_REMOVE) {
+              for (var i = 0; i < this.snakes.length; i++) {
+                if (this.snakes[i].snakeId == snakeId) {
+                  this.killSnakeAtIndex(i);
+                  break;
+                }
+              }
             }
           }
-        }
-        // Process moves and snake removals
-        for (var i = 0; i < this.snakes.length; i++) {
-          var snakeId = this.snakes[i].snakeId;
-          if (msg.snakeChanges[snakeId] && msg.snakeChanges[snakeId].type == SNAKE_REMOVE)
-            this.killSnakeAtIndex(i);
-          if (msg.processedMoves[snakeId])
-            this.snakes[i].requestMove(msg.processedMoves[snakeId]);
-        }
-        try {
+          // Process snake moves
+          for (var i = 0; i < this.snakes.length; i++) {
+            var snakeId = this.snakes[i].snakeId;
+            if (msg.processedMoves[snakeId])
+              this.snakes[i].requestMove(msg.processedMoves[snakeId]);
+          }
           this.processTurn();
         } catch(e) {
-          console.log("Swallowing Exception in processTurn:", JSON.stringify(e));
+          console.log("Caught Exception in UPDATE processing:", JSON.stringify(e));
           this.refreshState();
         }
         break;
