@@ -81,12 +81,12 @@ extend(RenderedBoard.prototype, {
     bodyCells[0].removeClass("head").addClass("body");
 
     var animationProperties = {
-      opacity: 0,
       width: 0,
-      height: 0,
-      // As the snake body shrinks, we want it to stay centered in the cell
-      marginLeft: this.cellSize / 2,
-      marginTop: this.cellSize / 2
+      height: 0
+      // As the snake body shrinks, we want it to stay centered in the cell.
+      // NOTE(philc): turning this off for now for performance reasons.
+      // marginLeft: this.cellSize / 2,
+      // marginTop: this.cellSize / 2
     };
 
     jQuery.each(bodyCells, function(i, cell) {
