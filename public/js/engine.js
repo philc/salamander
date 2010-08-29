@@ -335,7 +335,7 @@ var MessageType = {
 SNAKE_ADDITION = "add";
 SNAKE_REMOVE = "remove";
 
-SNAKE_START_SIZE = 3;
+SNAKE_START_SIZE = 4;
 
 // TODO do nice inheritance
 function ServerEngine() { this.subinit(); }
@@ -402,7 +402,6 @@ extend(ServerEngine.prototype, {
         this.board.set(x, y, {type: APPLE});
         this.totalApples += 1;
         this.newApples.push([x, y]);
-        console.log("Added apple", this.newApples.length);
         numApples -= 1;
       }
     }
@@ -427,7 +426,7 @@ extend(ServerEngine.prototype, {
       tail = [head[0], head[1]];
       var axis = Math.floor(Math.random() * 2);
       var dist = ((axis == 0) ? BOARD_WIDTH : BOARD_HEIGHT) / 2 - head[axis]; // Signed distance to center line
-      tail[axis] = head[axis] - (dist == 0 ? 1 : (dist / Math.abs(dist))) * SNAKE_START_SIZE;
+      tail[axis] = head[axis] - (dist == 0 ? 1 : (dist / Math.abs(dist))) * (SNAKE_START_SIZE - 1);
       GridUtils.iterateAlongLine(head, tail, function(x, y) {
         if (GridUtils.outOfBounds([x, y], BOARD_WIDTH, BOARD_HEIGHT) ||
             this.board.get(x, y).type != EMPTY)
@@ -503,8 +502,10 @@ extend(ClientEngine.prototype, {
             var snake = Snake.deserialize(msg.snakeChanges[snakeId].snake);
             this.snakes.push(snake);
             this.addSnakeToBoard(snake);
-            if (msg.snakeChanges[snakeId].isMySnake)
+            if (msg.snakeChanges[snakeId].isMySnake) {
               this.mySnake = snake;
+              console.log(snake);
+            }
           }
         }
         // Process moves and snake removals
