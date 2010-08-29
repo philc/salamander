@@ -94,18 +94,13 @@ Snake.prototype = {
   },
 
   serialize: function() {
-    return {
-      snakeId: this.snakeId,
-      articulations: this.articulations,
-      size: this.size,
-      desiredSize: this.desiredSize,
-      requestedMove: this.requestedMove
-    };
+    return JSON.stringify(this);
   }
 }
 Snake.deserialize = function(data) {
-  var snake = new Snake(data.snakeId, data.articulations, data.size,
-                        data.desiredSize, data.requestedMove);
+  var object = eval("(" + data + ")");
+  var snake = new Snake(object.snakeId, object.articulations, object.size,
+                        object.desiredSize, object.requestedMove);
   return snake;
 };
 
@@ -159,6 +154,7 @@ Engine.prototype = {
       var oldHead = snake.head();
       var newHead = [snake.head()[0] + headDirection[0],
                      snake.head()[1] + headDirection[1]];
+      console.log("newHead", newHead[0], newHead[1]);
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
         this.killSnakeAtIndex(i);
         continue;
@@ -315,6 +311,7 @@ extend(ServerEngine.prototype, {
         this.board.set(x, y, {type: APPLE});
         this.totalApples += 1;
         this.newApples.push([x, y]);
+        console.log("Added apple", this.newApples.length);
         numApples -= 1;
       }
     }
@@ -355,6 +352,8 @@ extend(ServerEngine.prototype, {
   },
 
   broadcastUpdate: function() {
+    if (this.newApples.length > 0)
+      console.log("SENDING NEW APPLES", this.newApples.length);
     update = { type: MessageType.UPDATE,
                newApples: this.newApples,
                processedMoves: this.processedMoves,
@@ -416,14 +415,6 @@ extend(ClientEngine.prototype, {
       case MessageType.UPDATE:
         // TODO Check for conflicts
         this.addSpecificApples(msg.newApples);
-        // Process moves and snake removals
-        for (var i = 0; i < this.snakes.length; i++) {
-          var snakeId = this.snakes[i].snakeId;
-          if (msg.processedMoves[snakeId])
-            this.snakes[i].requestMove(msg.processedMoves[snakeId]);
-          if (msg.snakeChanges[snakeId] && msg.snakeChanges[snakeId].type == SNAKE_REMOVE)
-            this.killSnakeAtIndex(i);
-        }
         // Process snake additions
         for (var snakeId in msg.snakeChanges) {
           if (msg.snakeChanges[snakeId].type == SNAKE_ADDITION) {
@@ -433,6 +424,14 @@ extend(ClientEngine.prototype, {
             if (msg.snakeChanges[snakeId].isMySnake)
               this.mySnake = snake;
           }
+        }
+        // Process moves and snake removals
+        for (var i = 0; i < this.snakes.length; i++) {
+          var snakeId = this.snakes[i].snakeId;
+          if (msg.snakeChanges[snakeId] && msg.snakeChanges[snakeId].type == SNAKE_REMOVE)
+            this.killSnakeAtIndex(i);
+          if (msg.processedMoves[snakeId])
+            this.snakes[i].requestMove(msg.processedMoves[snakeId]);
         }
         this.processTurn();
         break;
@@ -457,6 +456,8 @@ extend(ClientEngine.prototype, {
   },
 
   addSpecificApples: function(newApples) {
+    if (newApples.length > 0)
+      console.log("RECVED APPLES", newApples.length);
     for (var i = 0; i < newApples.length; i++) {
       var point = newApples[i];
       this.board.set(point[0], point[1], {type: APPLE});
