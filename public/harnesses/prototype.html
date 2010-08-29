@@ -6,6 +6,7 @@
   <script type="text/javascript" charset="utf-8">
       var exports = {};
   </script>
+  <script src="/js/utils.js"></script>
   <script type="text/javascript" src="/js/socket/socket.io.js"></script>
   <script type="text/javascript" src="/js/protocol.js"></script>
   <script src="/js/jquery-1.4.2.js"></script>
@@ -28,15 +29,18 @@
         else if (type === protocol.Types.Users) {
           var users = protocol.messageData(msg);
           var totalUsers = users.length;
-          //console.log(typeof(users));
-          //console.log(users);
           users.sort(function(a,b) {
-            return a.size - b.size;
+            return b.size - a.size;
           });
           
-          console.log(users);
+          var topFew = (users.length > 3) ? 3 : users.length;
+          var output = "";
+          for (var i=0; i < topFew; i++) {
+            output += ""+ users[i].snakeId + "<br/>";
+          }
+          console.log(output);
           
-          //$("#leaderboard").empty().append(protocol.messageData(msg).length + "<br/>" + users.slice(0,3));
+          $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
         }
       });
 
@@ -52,8 +56,10 @@
       KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // Left, Up, Right, Down
       $(document).keydown(function(e) {
         direction = KEYCODE_TO_DIRECTION[e.keyCode];
-        if (direction)
+        if (direction) {
           engine.moveSnake(direction);
+          e.preventDefault();
+        }
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });

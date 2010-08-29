@@ -5,7 +5,9 @@ function RenderedBoard(width, height, cellSize, boardElement) {
   this.cellSize = cellSize;
   this.boardElement = $(boardElement);
   this.divs = this.createDivs(width, height, this.boardElement);
-  this.TYPE_TO_CLASS = ["empty", "apple", "snake", "snakeHead"];
+  this.TYPE_TO_CLASS = ["empty", "food", "snake", "snakeHead"];
+  // Cells used to render the tongue graphic for a given snake.
+  this.snakeTongueCells = [];
 }
 
 extend(RenderedBoard.prototype, {
@@ -20,6 +22,44 @@ extend(RenderedBoard.prototype, {
 
   drawCell: function(x, y, classNames) {
     this.divs[x][y][0].className = classNames.join(" ");
+  },
+
+  /*
+   * This takes a list of snakes and shows a tongue animation on ecah snake every once in awhile.
+   */
+  renderSnakeTongues: function(snakes) {
+    // Make sure any existing tongue graphics are hidden, because the head it was attached to has since moved.
+    for (var i = 0; i < this.snakeTongueCells.length; i++)
+      this.snakeTongueCells[i].css("opacity", 0);
+
+    for (var i = 0; i < snakes.length; i++) {
+      var snake = snakes[i];
+      var tongueCell = this.snakeTongueCells[i];
+      if (!tongueCell)
+        tongueCell = this.snakeTongueCells[i] = this.createTongueCell();
+
+      // Animate the snake tongues every few turns randomly.
+      var shouldAnimate = Math.floor(snakes.length * 10 * Math.random()) == 1;
+      if (!shouldAnimate)
+        continue;
+
+      tongueCell.css("opacity", 1);
+      var headDirection = snake.computeHeadDirection();
+      var head = snake.head();
+      var nextCell = [head[0] + headDirection[0],
+                     head[1] + headDirection[1]];
+      tongueCell.removeClass("up left down right");
+      tongueCell.addClass(GridUtils.vectorToString(headDirection));
+      tongueCell.css("left", this.cellSize * nextCell[0]);
+      tongueCell.css("top", this.cellSize * nextCell[1]);
+    }
+  },
+
+  createTongueCell: function() {
+    var div = $(document.createElement("div"));
+    div.addClass("tongue");
+    this.boardElement.append(div);
+    return div;
   },
 
   /*
@@ -43,10 +83,27 @@ extend(RenderedBoard.prototype, {
       marginTop: this.cellSize / 2
     };
 
-    for (var i = 0; i < bodyCells.length; i++) {
-      this.boardElement.append(bodyCells[i]);
-      bodyCells[i].animate(animationProperties, { duration: 1500, complete: function() { $(this).remove(); }});
-    }
+    jQuery.each(bodyCells, function(i, cell) {
+      this.boardElement.append(cell);
+      this.animateDeathFlash(cell);
+    }.bind(this));
+
+    setTimeout(function() {
+      jQuery.each(bodyCells, function(i, element) {
+        element.animate(animationProperties,
+            { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
+      });
+    }, 100);
+  },
+
+  animateDeathFlash: function(element) {
+    var flickerDuration = 80;
+    new DelayedQueue(flickerDuration, [
+      function() { element.addClass("flash1"); },
+      function() { element.removeClass("flash1").addClass("flash2"); },
+      function() { element.removeClass("flash2").addClass("flash1"); },
+      function() { element.removeClass("flash1"); }
+    ]);
   },
 
   /* Creates and returns a widthxheight matrix of divs representing the game's surface. */
@@ -65,3 +122,21 @@ extend(RenderedBoard.prototype, {
     return divs;
   }
 });
+
+/*
+ * A delayed queue dequeues one of its items every n seconds. It's used for animation.
+ */
+function DelayedQueue(dequeueDelay, functions) {
+  this.delay = dequeueDelay;;
+  this.functions = functions;
+  this.popItem();
+}
+DelayedQueue.prototype = {
+  popItem: function() {
+    var fn = this.functions.shift();
+    fn.call();
+    if (this.functions.length > 0)
+      setTimeout(this.popItem.bind(this), this.delay);
+  }
+}
+

@@ -21,9 +21,7 @@ h1 {
 #board div {
   position: absolute;
 }
-.apple {
-  background-color: red;
-}
+.food { background-image: url(/images/food.png); }
 .snake1 { background-color: #87071c; }
 .snake2 { background-color: #3280ba; }
 .snake3 { background-color: #ba5535; }
@@ -34,6 +32,10 @@ h1 {
 .left { -webkit-transform: rotate(-90deg); }
 .right { -webkit-transform: rotate(90deg); }
 .down { -webkit-transform: rotate(180deg); }
+
+.flash1 { background-color: #777; }
+.flash2 { background-color: #ddd; }
+.tongue { background-image: url(/images/tongue.png); }
 
 /*
  * Heads up display. 
