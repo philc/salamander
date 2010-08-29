@@ -364,7 +364,6 @@ extend(ServerEngine.prototype, {
   },
 
   processMessage: function(msg, user) {
-    console.log("processMessage", JSON.stringify(msg));
     switch(msg.type) {
       case MessageType.START_GAME:
         // Create a snake for the user and let them know
