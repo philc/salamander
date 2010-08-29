@@ -51,7 +51,7 @@ h1 {
 /*
  * Start page
  */
-#start {
+.popup {
   position: fixed;
   top: 100px;
   left: 100px;
@@ -64,7 +64,7 @@ h1 {
   border: 1px solid black;
 }
 
-#start a.button {
+.popup a.button {
   display: block;
   width: 100px;
   text-align: center;
@@ -72,7 +72,7 @@ h1 {
   margin-right: auto;
 }
 
-#start h1 {
+.popup h1 {
   text-align: center;
 }
 
