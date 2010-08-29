@@ -82,7 +82,8 @@ Snake.prototype = {
   },
 
   eatApple: function() {
-    this.desiredSize += 2;
+    var increase = Math.floor(Math.min(1.5 * this.desiredSize, 10));
+    this.desiredSize += increase;
   },
 
 
@@ -124,7 +125,7 @@ Snake.deserialize = function(data) {
 // Default values
 BOARD_WIDTH = 40;
 BOARD_HEIGHT = 40;
-DESIRED_APPLES = 3;
+DESIRED_APPLES = 10;
 TURN_DURATION = 250;
 
 function Engine(renderedBoard) { this.init(renderedBoard); }
@@ -170,7 +171,6 @@ Engine.prototype = {
       var oldHead = snake.head();
       var newHead = [snake.head()[0] + headDirection[0],
                      snake.head()[1] + headDirection[1]];
-      console.log("newHead", newHead[0], newHead[1]);
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
         this.killSnakeAtIndex(i);
         continue;
@@ -309,7 +309,8 @@ extend(ServerEngine.prototype, {
         user.client.send({ type: MessageType.GAME_STARTED, snake: user.snake.serialize() });
         break;
       case MessageType.REQUEST_MOVE:
-        user.snake.requestMove(msg.direction);
+        if (user.snake != null)
+          user.snake.requestMove(msg.direction);
         break;
       case MessageType.SET_USER_PROPS:
         user.props = msg.props;
