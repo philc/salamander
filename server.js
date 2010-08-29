@@ -1,11 +1,12 @@
+require("./public/js/utils");
+
 var http = require('http'), 
 	url = require('url'),
 	fs = require('fs'),
 	sys = require('sys'),
 	socket = require('./socket_node/'),
 	ServerEngine = require('./public/js/engine').ServerEngine;
-	protocol = require('./public/js/protocol').protocol,
-	utils = require("./public/js/utils").utils;
+	protocol = require('./public/js/protocol').protocol;
 
 var PUBLIC_DIR = "/public";
 

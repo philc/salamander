@@ -1,6 +1,4 @@
-var utils = {};
-
-utils.extend = function(hashA, hashB) {
+extend = function(hashA, hashB) {
   for (var key in hashB)
     hashA[key] = hashB[key];
   return hashA;
@@ -37,4 +35,4 @@ EventDispatcher = {
       callbacks[i].call(null, event);
   }
 }
-exports.utils = utils;
+
