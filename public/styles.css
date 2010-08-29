@@ -1,3 +1,11 @@
+body {
+  font-family: Monaco,courier,sans-serif;
+}
+
+h1 {
+  font-size: 2em;
+}
+
 #debug-board#board {
   border: 10px solid #ddd;
 }
@@ -43,17 +51,45 @@
 /*
  * Start page
  */
-#start {
+.popup {
   position: fixed;
   top: 100px;
   left: 100px;
   height: 100%;
   z-index: 999;
   opacity: 0.8;
-  margin-left: auto;
-  margin-right: auto;
   width: 400px;
   height: 200px;
   background-color: white;
   border: 1px solid black;
+}
+
+.popup a.button {
+  display: block;
+  width: 100px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.popup h1 {
+  text-align: center;
+}
+
+a.button {
+  margin: 1em;
+  padding: 1em;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  color: #333;
+  text-decoration: none;
+}
+
+a.button:hover {
+  border: 1px solid #000;
+  color: #000;
+}
+
+a.button:active {
+  opacity: 0.8;
 }

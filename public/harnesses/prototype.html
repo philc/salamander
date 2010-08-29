@@ -27,7 +27,7 @@
           }
       });
 
-      var autoStart = false;
+      var autoStart = false;//dev
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
 
@@ -47,16 +47,19 @@
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });
-      $("#startButton").click(startGame);
-
-      if (autoStart)
-        startGame();
+      $(".startButton").click(function(event) {
+        if (!autoStart) {
+          startGame();
+        }
+        event.preventDefault(); 
+      });
+      
+      if (autoStart) { startGame(); }
     });
 
     function startGame() {
       console.log("startGame");
-      $("#start").hide();
-      engine.start();
+      $(".popup").hide();
     }
 
     function addPageStyle(css, head) {
@@ -79,11 +82,20 @@
     <button id="pauseButton">Pause</button>
   </div>
   
-  <div id="start">
-      <div class="innerBox">
+  <div id="start" class="popup">
+    <div class="innerBox">
       <h1>Welcome to MO-SNAKES-MO-PROBLEMS!</h1>
-      <button id="startButton">Start</button>
+      <a class="startButton button" href="#">Start</a>
     </div>
   </div>
+  
+  <!--hidden by default added when needed-->
+  <div id="restart" class="popup" style="display: none;">
+    <div class="innerBox">
+      <h1>Oooh noooo! Wanna play again?</h1>
+      <a class="startButton button" href="#">Restart</a>
+    </div>
+  </div>
+  
 </body>
 </html>
