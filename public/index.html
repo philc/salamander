@@ -41,7 +41,7 @@
 
       if (!autoStart)
         showStartScreen();
-      
+
       var socket = new io.Socket(null, {port: 80});
       socket.connect();
       var gameClient = new protocol.GameClient(socket);
@@ -63,13 +63,16 @@
       engine.registerClient(gameClient);
       engine.addEventListener("snakeDead", function() {
         setTimeout(function() {
-          if (reloaded) {
-            window.location = window.location;
-          }
-          else {
-            window.location = window.location+"?"+RELOAD_STRING+"=yes";
-          }
-        }, 2000);
+          // TODO(philc):
+          // if (reloaded) {
+          //   window.location = window.location;
+          // }
+          // else {
+          //   window.location = window.location+"?"+RELOAD_STRING+"=yes";
+          // }
+          showEndScreen();
+          myPrevTitle = snakeTitles["0"];
+        }, 1800);
       });
 
       // Arrow key control code
@@ -84,40 +87,54 @@
 
       //screen management
       $("#pauseButton").click(function() { engine.togglePause(); });
-      
+
       function startGameEvent(event, name) {
-        hideStartScreen();
-        if (!autoStart)
-          startGame(name);
+        startGame(name);
         event.preventDefault();
       }
 
       $("#startScreen form").submit(function(event) {
+        hideStartScreen();
         startGameEvent(event, $("#startScreen input[name=name]").val());
       });
 
-      $("#restartForm").submit(function(event) { startGameEvent(event, $("#restartName").val()); });
+      $("#endScreen form").submit(function(event) {
+        hideEndScreen();
+        startGameEvent(event, $("#startScreen input[name=name]").val());
+      });
 
       $("#startScreen #startButton").click(function(event) {
         $("#startScreen form").submit();
         event.preventDefault();
       });
-      $(".restartButton").click(function(event) {
-        $("#restartForm").submit();
+
+      $("#endScreen #restartButton").click(function(event) {
+        $("#endScreen form").submit();
         event.preventDefault();
-      })
-      
+      });
+
       if (autoStart) { startGame(""); }
     });
 
     function showStartScreen() {
-      centerWithinParent($("#startScreen"));
+      $("#startScreen").show();
+      // TODO(philc): Hard-coding vertical centering here because the height of the box we're centering
+      // is non-deterministic during load time.
+      $("#startScreen").css("margin-top", Math.max(30, ($(window).height() - 300) / 2 - 30));
       $("#startScreen input[name=name]").focus();
     }
 
-    function hideStartScreen() {
-      $("#startScreen").hide();
+    function hideStartScreen() { $("#startScreen").hide(); }
+
+    function showEndScreen() {
+      $("#endScreen").show();
+      // TODO(philc): Hard-coding vertical centering here because the height of the box we're centering
+      // is non-deterministic during load time.
+      $("#endScreen").css("margin-top", Math.max(30, ($(window).height() - 280) / 2 - 30));
+      $("#endScreen a").focus();
     }
+
+    function hideEndScreen() { $("#endScreen").hide(); }
 
     function startGame(name) {
       console.log("startGame");
@@ -135,7 +152,7 @@
       head.appendChild(style);
       return style;
     }
-    
+
     //handle users data
     var snakeTitles = {
       "500":"Black Mamba",
@@ -151,12 +168,12 @@
     }
     var snakeGraduations = [500,450,400,350,300,250,200,150,100,0];
     var myPrevTitle = snakeTitles["0"];
-    
+
     function handleUsers(users) {
       var totalUsers = users.length;
       //sort from largest snake down
       users.sort(function(a,b) { return b.snake.size - a.snake.size; });
-      
+
       var me = false;
       var maxTop = 10;
       var topFew = (users.length > maxTop) ? maxTop : users.length;
@@ -181,14 +198,15 @@
         }
         output += ""+ users[i].props.name + ": " + size + " - " + title + "<br/>";
       }
-      
+
       $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
     }
-    
+
     function announce(text) {
       var myHead = engine.mySnake.head();
       var div = board.divs[myHead[0]][myHead[1]];
-      var announcement = $('<div class="announcement"></div>').html(text).css({width: "1000px", top: div.css("top"), left: div.css("left")});
+      var announcement = $('<div class="announcement"></div>').html(text).css(
+        { width: "1000px", top: div.css("top"), left: div.css("left") });
       console.log(announcement);
       $("#board").append(announcement);
       announcement.animate({opacity: 0,fontSize: "3em", marginLeft: "-100px"}, 1500, function() {
@@ -212,9 +230,9 @@
   </div>
 
   <div class="centeredPopupContainer">
-    <div id="startScreen" class="popup">
+    <div id="startScreen" class="popup" style="display:none">
       <form>
-        <img src="/images/logo.png" id="logo" />
+        <img src="/images/logo.png" class="logo" />
         <div id="tagline"><img src="/images/tagline.png" id="tagline" /></div>
 
         <p class="intro">
@@ -226,26 +244,33 @@
 
         <p>
           <input type="text" name="name" value="Your nickname" />
-          <a id="startButton" href="#">Enter the Arena</a>
+          <a id="startButton" class="button" href="#">Enter the Arena</a>
         </p>
 
         <p class="footer">For the best gameplay, maximize your browser window.</p>
       </form>
     </div>
-  </div>
 
-  <!--hidden by default added when needed-->
-  <div id="restart" class="popup" style="display: none;">
-    <div class="innerBox">
-      <img src="images/title.png" width="400" height="50" title="Snake Arena"/>
-      <form action="prototype_submit" method="get" accept-charset="utf-8" id="restartForm">
-        Play Again?
-        Name: <input type="text" id="restartName"/>
-        <a class="restartButton button" href="#">Restart</a>
+    <div id="endScreen" class="popup" style="display:none">
+      <form>
+        <img src="/images/logo.png" class="logo" />
+        <div id="tagline"><img src="/images/tagline.png" id="tagline" /></div>
+
+        <p class="intro">
+          <span class="contents">
+            Blast &mdash; you were destroyed! Try again<br/> to become a <strong>Black Mamba</strong>?
+            <!-- TODO(philc): It would be cool to show their rank and length here,
+                 and who they were killed by -->
+          </span>
+        </p>
+
+        <p>
+          <a class="button" id="restartButton" href="#">Re-enter the Arena</a>
+        </p>
       </form>
     </div>
   </div>
-  
+
   <div id="announcements"></div>
 </body>
 </html>

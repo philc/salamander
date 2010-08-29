@@ -68,13 +68,26 @@ h1 {
   padding: 1em;
 }
 
+/*
+ * Start and end screen styles
+ */
 .popup {
-  position: absolute;
+  position: relative;
+  margin: 0 auto;
+/*  position: absolute;*/
+  text-align: center;
   width: 430px;
+  max-width: 430px;
   /* TODO(philc): replace with a transparent backgrond image */
   background-color: #FFE6BF;
   border: 15px solid #CC9342;
   padding: 10px;
+}
+
+.popup .logo {
+  position: absolute;
+  top: -58px;
+  left: 4px;
 }
 
 .centeredPopupContainer {
@@ -85,53 +98,59 @@ h1 {
   z-index: 999;
 }
 
-/*
- * Start screen styles
- */
-#startScreen { text-align: center; }
-#startScreen p { margin: 16px 0; }
+.popup p { text-align: center; }
+.popup p { margin: 16px 0; }
 
-#startScreen p.intro {
-  text-align: center;
+.popup p.intro {
   display: -webkit-box;
   display: -moz-box;
   -webkit-box-pack: center;
   -moz-box-pack: center;
 }
 
-#startScreen p.intro .contents {
+.popup p.intro .contents {
   text-align: left;
   display: table-cell;
+}
+
+#endScreen {
+  height: 150px;
+}
+
+#endScreen .button {
+  width: 210px;
 }
 
 #startScreen input[name=name] {
   /* This should be the same width (+ padding) as a#startButton */
   padding: 4px;
-  width: 192px;
+  width: 172px;
   font-size: 16px;
   margin-bottom: 6px;
 }
 
-#startScreen a#startButton {
+.popup a.button {
   display: block;
   margin: 0 auto;
+  text-align: center;
 
   background-image: url(/images/buttonBackground.png);
   background-repeat: repeat-x;
 
   border: 3px solid #C1C1C1;
-  padding: 10px;
+  padding: 10px 0;
   width: 180px;
 
   text-decoration: none;
+  white-space: nowrap;
   color: black;
   font-size: 20px;
   font-weight: bold;
   text-shadow: #FFF 1px 1px 1px;
 }
 
-#startScreen a#startButton:hover { border: 3px solid #999; }
-#startScreen a#startButton:active { background-image: url(/images/buttonBackgroundDown.png); }
+.popup a.button:hover { border: 3px solid #999; }
+.popup a.button:active { background-image: url(/images/buttonBackgroundDown.png); }
 
 #startScreen .footer {
   font-size: 10px;
@@ -139,47 +158,9 @@ h1 {
   margin-bottom: 0px;
 }
 
-#startScreen #logo {
-  position: absolute;
-  top: -58px;
-  left: 4px;
-}
-
 /*
  * General popup styles. We may no longer need these.
  */
-.popup a.button {
-  display: block;
-  width: 100px;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.popup h1 {
-  text-align: center;
-}
-
-a.button {
-  margin: 1em;
-  padding: 1em;
-  background-color: #eee;
-  border: 1px solid #000;
-  color: #333;
-  text-decoration: none;
-}
-
-a.button:hover {
-  border: 1px solid #000;
-  color: #000;
-}
-
-a.button:active {
-  opacity: 0.8;
-}
-
-.innerBox {position: relative;}
-
 .announcement {
   position: absolute;
   z-index: 999;
