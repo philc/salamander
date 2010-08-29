@@ -100,10 +100,11 @@ Snake.prototype = {
     if (this.requestedMoves.length >= 2)
       this.requestedMoves.shift();
     this.requestedMoves.push(requestedDirection);
-    console.log("move backlog:", this.requestedMoves[0]);
-    console.log("move backlog:", this.requestedMoves[1]);
   },
 
+  /*
+   * Returns the snake's next requested move, or null if there is no valid requested move.
+   */
   popNextMove: function() {
     // iterates through the moves that were requested and discards ones which are not relevant given
     // the current state of the snake.
