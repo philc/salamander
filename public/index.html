@@ -140,22 +140,24 @@
 
     //handle users data
     var snakeTitles = {
-      "500":"Black Mamba",
-      "450":"King Cobra",
-      "400":"Death Adder",
-      "350":"Anaconda",
-      "300":"Viper",
-      "250":"Python",
-      "200":"Taipan",
-      "150":"Boomslang",
-      "100":"Valley Rattlesnake",
+      "300":"Black Mamba",
+      "250":"King Cobra",
+      "200":"Death Adder",
+      "150":"Anaconda",
+      "125":"Viper",
+      "100":"Taipan",
+      "75":"Python",
+      "50":"Boomslang",
+      "20":"Rattlesnake",
       "0":"Garden Snake",
     }
-    var snakeGraduations = [500,450,400,350,300,250,200,150,100,0];
+    var snakeGraduations = [300,250,200,150,125,100,75,50,20,0];
     var myPrevTitle = snakeTitles["0"];
 
     function handleUsers(users) {
       var totalUsers = users.length;
+      $("#totalPlayers").html(totalUsers);
+      var leaderboard = $("#leaderboard").empty();
       //sort from largest snake down
       users.sort(function(a,b) { return b.snake.size - a.snake.size; });
 
@@ -181,10 +183,24 @@
             myPrevTitle = title;
           }
         }
-        output += ""+ users[i].props.name + ": " + size + " - " + title + "<br/>";
+        
+        leaderboard.append('<div class="player">'+
+          '<div class="col left">'+
+            '<div class="playerColor" style="background-color: '+users[i].snake.color+'"></div>'+
+          '</div>' +
+          '<div class="col middle">' +
+            '<div class="playerName">'+users[i].props.name+'</div>' +
+            '<div class="playerTitle">'+title+'</div>' +
+          '</div>' +
+          '<div class="col right">' +
+            '<div class="score">'+size+'</div>' +
+          '</div>'+
+          '<div class="clear"></div>' +
+        '</div>');
+        //output += ""+ users[i].props.name + ": " + size + " - " + title + "<br/>";
       }
 
-      $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
+      //$("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
     }
 
     function announce(text) {
@@ -208,9 +224,12 @@
   <div id="hud">
     <div class="innerBox">
       <!--button id="pauseButton">Pause</button-->
+      <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style=" text-align: center; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!"/></a>
+      <h2>Deadliest Snakes</h2>
       <div id="leaderboard">
       </div>
-        <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="position: fixed; top: 20px; right: 20px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!"/></a>
+      Total Players: <span id="totalPlayers"></span>
+      
     </div>
   </div>
 
@@ -256,6 +275,5 @@
     </div>
   </div>
 
-  <div id="announcements"></div>
 </body>
 </html>

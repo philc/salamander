@@ -46,9 +46,9 @@ h1 {
 
 .head { background-image: url(/images/head.png); }
 
-.left { -webkit-transform: rotate(-90deg); }
-.right { -webkit-transform: rotate(90deg); }
-.down { -webkit-transform: rotate(180deg); }
+#board .left { -webkit-transform: rotate(-90deg); }
+#board .right { -webkit-transform: rotate(90deg); }
+#board .down { -webkit-transform: rotate(180deg); }
 
 .flash1 { background-color: #777; }
 .flash2 { background-color: #ddd; }
@@ -160,3 +160,34 @@ h1 {
   z-index: 999;
   font-size: 0.1em;
 }
+
+h2 {
+  padding: 0px;
+  margin: 0px;
+  text-align: center;
+}
+.player {
+  margin-top: 5px;
+}
+.player .left {
+  width: 15px;
+}
+.player .middle {
+  width: 130px;
+  margin-left: 5px;
+}
+.player .right {
+  width: 50px;
+}
+.player .playerColor {
+  width: 15px;
+  height: 15px;
+}
+.player .playerTitle {
+  font-weight: bold;
+  font-size: 0.8em;
+}
+.player .playerName {
+}
+.player .col {float: left;}
+.player .clear {clear: both;}
