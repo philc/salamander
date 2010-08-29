@@ -125,7 +125,11 @@ Snake.deserialize = function(data) {
                         object.desiredSize, object.requestedMoves);
   return snake;
 };
-RANDOM_NAMES = ["Annie", "Bob", "Carly", "Damien"];
+RANDOM_NAMES = [
+    "Annie", "Bob", "Carly", "Damien","Jacob","Isabella","Ethan","Emma",
+    "Michael","Olivia","Alexander","Sophia","William","Ava","Joshua","Emily","Daniel",
+    "Madison","Jayden","Abigail","Noah","Chloe","Anthony","Mia"
+  ];
 Snake.randomName = function() {
   var index = Math.floor(Math.random() * RANDOM_NAMES.length);
   return RANDOM_NAMES[index];
