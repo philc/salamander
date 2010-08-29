@@ -56,6 +56,7 @@ Snake.prototype = {
     this.desiredSize = desiredSize;
     this.requestedMoves = requestedMoves;
     this.deathCallbacks = [];
+    this.isBot = false;
   },
 
   head: function() { return this.articulations[0]; },
@@ -124,6 +125,11 @@ Snake.deserialize = function(data) {
                         object.desiredSize, object.requestedMoves);
   return snake;
 };
+RANDOM_NAMES = ["Annie", "Bob", "Carly", "Damien"];
+Snake.randomName = function() {
+  var index = Math.floor(Math.random() * RANDOM_NAMES.length);
+  return RANDOM_NAMES[index];
+}
 
 
 // Default values
@@ -138,7 +144,7 @@ Engine.prototype = {
   init: function(renderedBoard) {
     this.board = new Board(BOARD_WIDTH, BOARD_HEIGHT, renderedBoard);
     this.snakes = [];
-    this.totalApples = 0;
+    this.allApples = [];
     this.processedMoves = {}; // Contains the snake moves processed in the last turn, snakeId => [dx,dy]
     this.snakeChanges = {}; // Mapping of snakeId => {type: add|remove}
   },
@@ -154,19 +160,6 @@ Engine.prototype = {
         throw "Trying to add snake to occupied cell";
       this.board.set(x, y, {type: SNAKE, snakeId: snake.snakeId});
     }.bind(this));
-  },
-
-  start: function() {
-    console.log("start");
-    if (!this.isServer) // TODO HACK until we have proper syncing with the server.
-      return;
-    this.turnTimer = setInterval(function() {
-      try {
-        this.processTurn();
-      } catch(e) {
-        console.log("Swallowing Exception:", JSON.stringify(e));
-      }
-    }.bind(this), TURN_DURATION);
   },
 
   processTurn: function() {
@@ -207,7 +200,9 @@ Engine.prototype = {
       else {
         if (cell.type == APPLE) {
           snake.eatApple();
-          this.totalApples -= 1;
+          for (var j = 0; j < this.allApples.length; j++)
+            if (this.allApples[j][0] == newHead[0] && this.allApples[j][1] == newHead[1])
+              this.allApples.splice(j, 1);
         }
         this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "body" });
         this.board.set(newHead[0], newHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "head",
@@ -243,19 +238,13 @@ Engine.prototype = {
     // Clean out all tombstones
     for (var i = 0; i < tombstones.length; i++)
       delete this.board.get(tombstones[i][0], tombstones[i][1]).isTombstone;
-
-    if (this.isServer) {
-      this.addRandomApples(DESIRED_APPLES - this.totalApples);
-      this.broadcastUpdate();
-    } else {
-      this.dispatchEvent({ type: "turnProcessed" });
-    }
+    this.dispatchEvent({ type: "turnProcessed" });
   },
 
   killSnakeAtIndex: function(index) {
     var snake = this.snakes[index];
-    snake.die();//let it do any cleanup it wants
     this.snakes.splice(index, 1);
+    snake.die();//let it do any cleanup it wants
     this.board.renderDeath(snake);
     // Remove the snake's cells
     GridUtils.iterateAlongArticulations(snake.articulations, function(x, y) {
@@ -296,6 +285,10 @@ SNAKE_ADDITION = "add";
 SNAKE_REMOVE = "remove";
 
 SNAKE_START_SIZE = 4;
+MIN_DESIRED_SNAKES = 2;
+
+// Bot constants
+BOT_GO_STRAIGHT_PROBABILITY = 0.1; // TODO tweak
 
 // TODO do nice inheritance
 function ServerEngine() { this.subinit(); }
@@ -305,13 +298,15 @@ extend(ServerEngine.prototype, {
     this.init(null);
     this.isServer = true;
     this.users = [];
+    this.allApples = [];
     this.newApples = [];
     this.addRandomApples(DESIRED_APPLES);
     this.addRandomObstacles();
+    this.addBots(MIN_DESIRED_SNAKES);
   },
 
   registerClient: function(client) {
-    var user = { "client": client, "snake": null, "props": null};
+    var user = { "isHuman": true, "client": client, "snake": null, "props": null};
     this.users.push(user);
     // Register for moves from client
     client.receive = function(msg) {
@@ -321,7 +316,7 @@ extend(ServerEngine.prototype, {
   },
 
   unregisterClient: function(client) {
-    // TODO
+    // TODO call removeUser
   },
 
   processMessage: function(msg, user) {
@@ -332,7 +327,8 @@ extend(ServerEngine.prototype, {
         user.snake.addDeathCallback(function(snake){
           user.snake = null;
           user.client.send({ type: MessageType.SNAKE_DEAD });
-        });
+          this.addBots(Math.max(MIN_DESIRED_SNAKES - this.snakes.length, 0));
+        }.bind(this));
         break;
       case MessageType.REQUEST_MOVE:
         if (user.snake != null)
@@ -360,7 +356,7 @@ extend(ServerEngine.prototype, {
       var y = Math.floor(BOARD_HEIGHT * Math.random());
       if (this.board.get(x, y).type == EMPTY) {
         this.board.set(x, y, {type: APPLE});
-        this.totalApples += 1;
+        this.allApples.push([x, y]);
         this.newApples.push([x, y]);
         numApples -= 1;
       }
@@ -422,8 +418,86 @@ extend(ServerEngine.prototype, {
     var snake = new Snake(snakeId, [head, tail], SNAKE_START_SIZE, SNAKE_START_SIZE, []);
     this.snakes.push(snake);
     this.addSnakeToBoard(snake);
-    this.snakeChanges[snakeId] = { type: SNAKE_ADDITION, snake: snake.serialize() };
+    this.snakeChanges[snakeId] = { type: SNAKE_ADDITION, snake: snake.serialize() };    
     return snake;
+  },
+
+  addBots: function(numBots) {
+    for (var i = 0; i < numBots; i++) {
+      console.log("adding bot");
+      var snake = this.createSnake();
+      snake.isBot = true;
+      var user = { "isHuman": false, "client": null, "snake": snake,
+                   "props": { "name": Snake.randomName() }};
+      this.users.push(user);
+      snake.addDeathCallback(function(snake) {
+        this.removeUser(user);
+        this.addBots(Math.max(MIN_DESIRED_SNAKES - this.snakes.length, 0));
+      }.bind(this));
+    }
+  },
+
+  start: function() {
+    console.log("start");
+    this.turnTimer = setInterval(function() {
+      try {
+        this.preProcessTurn();
+      } catch(e) {
+        console.log("Swallowing Exception in preProcessTurn:", JSON.stringify(e));
+      }
+      try {
+        this.processTurn();
+        this.postProcessTurn();
+      } catch(e) {
+        console.log("Swallowing Exception in processTurn:", JSON.stringify(e));
+      }
+    }.bind(this), TURN_DURATION);
+  },
+
+  preProcessTurn: function() {
+    // Compute bot moves
+    for (var i = 0; i < this.snakes.length; i++) {
+      var snake = this.snakes[i];
+      if (snake.isBot) {
+        // Find the closest apple
+        if (Math.random() < BOT_GO_STRAIGHT_PROBABILITY)
+          continue;
+        if (this.allApples.length == 0)
+          continue;
+        var head = snake.head();
+        var closestApple = this.allApples[0];
+        var closestDistance = GridUtils.computeSquareDistance(head, closestApple);
+        for (var j = 1; j < this.allApples.length; j++) {
+          var distance = GridUtils.computeSquareDistance(head, this.allApples[j]);
+          if (distance <= closestDistance) {
+            closestApple = this.allApples[j];
+            closestDistance = distance;
+          }
+        }
+        // Go for the closestApple
+        var currentDirection = snake.computeHeadDirection();
+        var optimalDirectionPairs = GridUtils.computeOptimalDirections(head, closestApple, currentDirection);
+        var bestDirection = null;
+        for (var j = 0; j < optimalDirectionPairs.length; j++) {
+          var nextPoint = optimalDirectionPairs[j].next;
+          if (GridUtils.outOfBounds(nextPoint, BOARD_WIDTH, BOARD_HEIGHT))
+            continue;
+          var cell = this.board.get(nextPoint[0], nextPoint[1]);
+          if (cell.type == SNAKE || cell.type == OBSTACLE)
+            continue;
+          bestDirection = optimalDirectionPairs[j].dir;
+          break;
+        }
+        // Only request a move if changing direction
+        if (bestDirection != null && bestDirection[0] != currentDirection[0])
+          snake.requestMove(bestDirection);
+      }
+    }
+  },
+
+  postProcessTurn: function() {
+    this.addRandomApples(DESIRED_APPLES - this.allApples.length);
+    this.broadcastUpdate();
   },
 
   broadcastUpdate: function() {
@@ -433,9 +507,13 @@ extend(ServerEngine.prototype, {
                snakeChanges: this.snakeChanges };
     for (var i = 0; i < this.users.length; i++) {
       var user = this.users[i];
+      if (!user.isHuman)
+        continue;
+      // Make user specific customizations: 
       if (user.snake && update.snakeChanges[user.snake.snakeId])
         update.snakeChanges[user.snake.snakeId].isMySnake = true;
       user.client.send(update);
+      // Roll back user specific customizations: 
       if (user.snake && update.snakeChanges[user.snake.snakeId])
         update.snakeChanges[user.snake.snakeId].isMySnake = false;
     }
@@ -443,6 +521,10 @@ extend(ServerEngine.prototype, {
     this.processedMoves = {};
     this.snakeChanges = {};
   },
+
+  removeUser: function(user) {
+    // TODO
+  }
 });
 
 
@@ -476,7 +558,7 @@ extend(ClientEngine.prototype, {
         for (var i = 0; i < msg.snakes.length; i++) {
           this.snakes.push(Snake.deserialize(msg.snakes[i]));
         }
-        this.start();
+        // this.start();
         break;
       case MessageType.UPDATE:
         // TODO Check for conflicts
@@ -530,8 +612,8 @@ extend(ClientEngine.prototype, {
     for (var i = 0; i < newApples.length; i++) {
       var point = newApples[i];
       this.board.set(point[0], point[1], {type: APPLE});
+      this.allApples.push([point[0], point[1]]);
     }
-    this.totalApples += newApples.length;
   },
   
   setUserProps: function(newProps) {
@@ -550,6 +632,11 @@ var GridUtils = {
     var dx = endPoint[0] - startPoint[0];
     var dy = endPoint[1] - startPoint[1];
     return [dx == 0 ? dx : dx / Math.abs(dx), dy == 0 ? dy : dy / Math.abs(dy)];
+  },
+
+  // TODO use this in processTurn
+  addVectorToPoint: function(point, vector) {
+    return [point[0] + vector[0], point[1] + vector[1]];
   },
 
   // Args: block is a function that takes an index
@@ -605,6 +692,31 @@ var GridUtils = {
     return "none";
   },
 
+  computeSquareDistance: function(point1, point2) {
+    var deltaX = point1[0] - point2[0];
+    var deltaY = point1[1] - point2[1];
+    return deltaX * deltaX + deltaY * deltaY;
+  },
+
+  // Returns a list of { "dir": [dx,dy], "next": [x,y], "dist": distance } objects sorted in ascending order by dist.
+  computeOptimalDirections: function(origin, destination, currentDirection) {
+    var possibleDirections = [
+        currentDirection,
+        [currentDirection[0] == 0 ? 1 : 0, currentDirection[1] == 0 ? 1 : 0],
+        [currentDirection[0] == 0 ? -1 : 0, currentDirection[1] == 0 ? -1 : 0]
+      ];
+    var possiblePairs = new Array(3);
+    for (var i = 0; i < possibleDirections.length; i++) {
+      var nextPoint = GridUtils.addVectorToPoint(origin, possibleDirections[i]);
+      possiblePairs[i] = {
+        "dir": possibleDirections[i],
+        "next": nextPoint,
+        "dist": GridUtils.computeSquareDistance(nextPoint, destination)
+      };
+    }
+    possiblePairs.sort(function(a, b) { return a.dist - b.dist; });
+    return possiblePairs;
+  },
 };
 
 exports.ServerEngine = ServerEngine;
