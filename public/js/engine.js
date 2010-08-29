@@ -77,8 +77,8 @@ Snake.prototype = {
   },
 
   computeTailDirection: function() {
-    var l = this.articulations.length
-    return GridUtils.computeDirection(this.articulations[l-2], this.articulations[l-1]);
+    var len = this.articulations.length
+    return GridUtils.computeDirection(this.articulations[len-2], this.articulations[len-1]);
   },
 
   eatApple: function() {
@@ -202,18 +202,17 @@ Engine.prototype = {
         snake.size += 1;
       }
       else {
-        var l = snake.articulations.length;
-        var oldTail = snake.articulations[l-1];
+        var len = snake.articulations.length;
+        var oldTail = snake.articulations[len-1];
         this.board.set(oldTail[0], oldTail[1], { type: EMPTY });
         var tailDirection = snake.computeTailDirection();
-        var newTail = [oldTail[0] + tailDirection[0],
-                       oldTail[1] + tailDirection[1]];
-        if (newTail[0] == snake.articulations[l-2][0] && newTail[1] == snake.articulations[l-2][1]) {
+        var newTail = [oldTail[0] + tailDirection[0], oldTail[1] + tailDirection[1]];
+        if (newTail[0] == snake.articulations[len-2][0] && newTail[1] == snake.articulations[len-2][1]) {
           // Remove the last articulation
-          snake.articulations.splice(l-1, 1);
+          snake.articulations.splice(len-1, 1);
         }
         else {
-          snake.articulations[l-1] = newTail;
+          snake.articulations[len-1] = newTail;
         }
       }
     }
