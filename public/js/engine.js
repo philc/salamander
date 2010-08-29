@@ -60,7 +60,6 @@ Board.prototype = {
 function Snake(snakeId, articulations, size, desiredSize, requestedMoves) {
   this.init(snakeId, articulations, size, desiredSize, requestedMoves);
 }
-
 Snake.prototype = {
   init: function(snakeId, articulations, size, desiredSize, requestedMoves) {
     this.snakeId = snakeId;
@@ -84,7 +83,7 @@ Snake.prototype = {
   },
 
   eatApple: function() {
-    var increase = Math.floor(Math.min(1.5 * this.desiredSize, 10));
+    var increase = 4; // Math.floor(Math.min(1.5 * this.desiredSize, 10));
     this.desiredSize += increase;
   },
 
