@@ -64,12 +64,11 @@
 
       $("#pauseButton").click(function() { engine.togglePause(); });
       $(".startButton").click(function(event) {
-        if (!autoStart) {
+        if (!autoStart)
           startGame();
-        }
-        event.preventDefault(); 
+        event.preventDefault();
       });
-      
+
       if (autoStart) { startGame(); }
     });
 

@@ -84,26 +84,24 @@ var server = http.createServer(function (req, res) {
 
 server.listen(80);
 
-var engine = new ServerEngine(null);
+var engine = new ServerEngine();
 engine.start();
 
 var io = socket.listen(server);
 
-var clients = {};//map of all clients to gameClient objects
+var clients = {}; // map of all clients to gameClient objects
 
-//send user data up
-setInterval(function() {
-  //console.log(engine.snakes);
+// send user data down to the client.
+setInterval(broadCastUserData, 1000);
+
+function broadCastUserData() {
   var users = engine.users,
-    outUsers = [];
-  //console.log(users.length);
-  for (var i = users.length - 1; i >= 0; i--){
-    if (users[i].snake) {
+      outUsers = [];
+  for (var i = users.length - 1; i >= 0; i--)
+    if (users[i].snake)
       outUsers.push(users[i].snake);
-    }
-  };
   io.broadcast(protocol.newMessage(protocol.Types.Users, outUsers));
-}, 1000);
+}
 
 io.on('connection', function(client){
   var gameClient = new protocol.GameClient(client);

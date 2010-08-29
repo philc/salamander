@@ -520,7 +520,7 @@ var GridUtils = {
   },
 
   /*
-   * Takes a vector of the form [x, y] and converts that to a human-readable direction string. Returns one of
+   * Takes a vector of the form [x, y] and converts it to a human-readable direction string. Returns one of
    * left, right, down, up, none.
   */
   vectorToString:function(vector) {
