@@ -43,7 +43,9 @@
         }
       });
 
-      var autoStart = false;//dev
+      // Used is used for development to skip the start screen.
+      var autoStart = document.location.toString().indexOf("autostart") >= 0;
+
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
 
@@ -63,12 +65,11 @@
 
       $("#pauseButton").click(function() { engine.togglePause(); });
       $(".startButton").click(function(event) {
-        if (!autoStart) {
+        if (!autoStart)
           startGame();
-        }
-        event.preventDefault(); 
+        event.preventDefault();
       });
-      
+
       if (autoStart) { startGame(); }
     });
 

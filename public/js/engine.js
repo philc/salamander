@@ -66,6 +66,7 @@ Snake.prototype = {
     this.size = size;
     this.desiredSize = desiredSize;
     this.requestedMove = requestedMove;
+    this.deathCallbacks = [];
   },
 
   head: function() { return this.articulations[0]; },
@@ -84,13 +85,28 @@ Snake.prototype = {
     this.desiredSize += 2;
   },
 
+
+  isMovePossible: function(direction) {
+    var currentDirection = this.computeHeadDirection();
+    // The new move must go from horizontal to vertical or vertical to horizontal.
+    return (direction[0] * currentDirection[0] +
+            direction[1] * currentDirection[1] == 0)
+  },
+
   // Returns whether or not the move is possible
   requestMove: function(requestedDirection) {
-    var currentDirection = this.computeHeadDirection();
-    if (requestedDirection[0] * currentDirection[0] +
-        requestedDirection[1] * currentDirection[1] == 0) {
+    if (this.isMovePossible(requestedDirection))
       this.requestedMove = requestedDirection;
-    }
+  },
+  
+  addDeathCallback: function(fun) {
+    this.deathCallbacks.push(fun);
+  },
+  
+  die: function() {
+    for (var i = this.deathCallbacks.length - 1; i >= 0; i--){
+      this.deathCallbacks[i](this);
+    };
   },
 
   serialize: function() {
@@ -212,6 +228,7 @@ Engine.prototype = {
 
   killSnakeAtIndex: function(index) {
     var snake = this.snakes[index];
+    snake.die();//let it do any cleanup it wants
     this.snakes.splice(index, 1);
     this.board.renderDeath(snake);
     // Remove the snake's cells
@@ -285,6 +302,9 @@ extend(ServerEngine.prototype, {
       case MessageType.START_GAME:
         // Create a snake for the user and let them know
         user.snake = this.createSnake();
+        user.snake.addDeathCallback(function(snake){
+          user.snake = null;
+        });
         user.client.send({ type: MessageType.GAME_STARTED, snake: user.snake.serialize() });
         break;
       case MessageType.REQUEST_MOVE:
@@ -444,15 +464,15 @@ extend(ClientEngine.prototype, {
     console.log("Engine.startGame");
     if (this.mySnake != null)
       return;
-    this.client.send({ type: MessageType.START_GAME });        
+    this.client.send({ type: MessageType.START_GAME });
   },
 
   moveSnake: function(requestedDirection) {
-    if (this.mySnake == null)
+    if (this.mySnake == null || !this.mySnake.isMovePossible(requestedDirection))
       return;
     // TODO Put back in this if statement when we want to have client seeking
     // if (this.mySnake.requestMove(requestedDirection))
-      this.client.send({ type: MessageType.REQUEST_MOVE, direction: requestedDirection });    
+      this.client.send({ type: MessageType.REQUEST_MOVE, direction: requestedDirection });
   },
 
   addSpecificApples: function(newApples) {
@@ -521,7 +541,7 @@ var GridUtils = {
   },
 
   /*
-   * Takes a vector of the form [x, y] and converts that to a human-readable direction string. Returns one of
+   * Takes a vector of the form [x, y] and converts it to a human-readable direction string. Returns one of
    * left, right, down, up, none.
   */
   vectorToString:function(vector) {
