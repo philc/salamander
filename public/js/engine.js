@@ -272,6 +272,7 @@ var MessageType = {
   // Sent from server to client
   SETUP: "setup",
   UPDATE: "update",
+  SNAKE_DEAD: "sankeDead",
 
   // Sent from client to server
   SET_USER_PROPS: "setUserProps",
@@ -318,6 +319,7 @@ extend(ServerEngine.prototype, {
         user.snake = this.createSnake();
         user.snake.addDeathCallback(function(snake){
           user.snake = null;
+          user.client.send({ type: MessageType.SNAKE_DEAD });
         });
         break;
       case MessageType.REQUEST_MOVE:
@@ -464,6 +466,9 @@ extend(ClientEngine.prototype, {
             this.snakes[i].requestMove(msg.processedMoves[snakeId]);
         }
         this.processTurn();
+        break;
+      case MessageType.SNAKE_DEAD:
+        this.dispatchEvent({type:"snakeDead"});
         break;
       default:
         throw "Unrecognized message type " + msg.type;
