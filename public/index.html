@@ -92,11 +92,12 @@
         event.preventDefault();
       })
       
-      if (autoStart) { startGame((new Date()).getTime()+""); }
+      if (autoStart) { startGame(""); }
     });
 
     function startGame(name) {
       console.log("startGame");
+      if (!name) { name = (new Date()).getTime()+"";}
       engine.setUserProps({"name":name});
       engine.startGame();
       $(".popup").hide();
