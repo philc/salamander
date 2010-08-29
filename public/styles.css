@@ -33,6 +33,8 @@ h1 {
 .right { -webkit-transform: rotate(90deg); }
 .down { -webkit-transform: rotate(180deg); }
 
+.flash1 { background-color: #777; }
+.flash2 { background-color: #ddd; }
 /*
  * Heads up display. 
  */

@@ -43,10 +43,27 @@ extend(RenderedBoard.prototype, {
       marginTop: this.cellSize / 2
     };
 
-    for (var i = 0; i < bodyCells.length; i++) {
-      this.boardElement.append(bodyCells[i]);
-      bodyCells[i].animate(animationProperties, { duration: 1500, complete: function() { $(this).remove(); }});
-    }
+    jQuery.each(bodyCells, function(i, cell) {
+      this.boardElement.append(cell);
+      this.animateDeathFlash(cell);
+    }.bind(this));
+
+    setTimeout(function() {
+      jQuery.each(bodyCells, function(i, element) {
+        element.animate(animationProperties,
+            { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
+      });
+    }, 100);
+  },
+
+  animateDeathFlash: function(element) {
+    var flickerDuration = 80;
+    new DelayedQueue(flickerDuration, [
+      function() { element.addClass("flash1"); },
+      function() { element.removeClass("flash1").addClass("flash2"); },
+      function() { element.removeClass("flash2").addClass("flash1"); },
+      function() { element.removeClass("flash1"); }
+    ]);
   },
 
   /* Creates and returns a widthxheight matrix of divs representing the game's surface. */
@@ -65,3 +82,21 @@ extend(RenderedBoard.prototype, {
     return divs;
   }
 });
+
+/*
+ * A delayed queue dequeues one of its items every n seconds. It's used for animation.
+ */
+function DelayedQueue(dequeueDelay, functions) {
+  this.delay = dequeueDelay;;
+  this.functions = functions;
+  this.popItem();
+}
+DelayedQueue.prototype = {
+  popItem: function() {
+    var fn = this.functions.shift();
+    fn.call();
+    if (this.functions.length > 0)
+      setTimeout(this.popItem.bind(this), this.delay);
+  }
+}
+
