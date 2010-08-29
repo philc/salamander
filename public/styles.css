@@ -7,6 +7,8 @@ body {
   /* font-family: Monaco,Consolas,Courier,sans-serif;*/
 }
 
+p { margin: 0; }
+
 h1 {
   font-size: 2em;
 }
@@ -175,20 +177,25 @@ h2 {
   margin: 0px;
   text-align: center;
 }
-.player {
-  margin-top: 5px;
+
+#leaderboard { margin-bottom: 15px; }
+p#voteButton {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 15px;
+}
+#voteButton img {
+  margin-top: -6px;
 }
 
-.player .left {
-  width: 15px;
-}
+.player { margin-top: 5px; }
+.player .left { width: 15px; }
 .player .middle {
-  width: 130px;
+  width: 140px;
   margin-left: 5px;
 }
-.player .right {
-  width: 40px;
-}
+.player .right { width: 40px; }
+
 .player .playerColor {
   width: 15px;
   height: 15px;
@@ -197,7 +204,5 @@ h2 {
   font-weight: bold;
   font-size: 0.8em;
 }
-.player .playerName {
-}
-.player .col {float: left;}
-.player .clear {clear: both;}
+.player .col { float: left; }
+.player .clear { clear: both; }
