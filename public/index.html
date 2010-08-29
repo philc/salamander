@@ -16,9 +16,19 @@
 
   <script>
     io.setPath('/js/socket/');
+    var RELOAD_STRING = "reload";
 
     $(document).ready(function() {
-      $("#startName").focus();
+      //init page state
+      var reloaded = document.location.toString().indexOf(RELOAD_STRING) >= 0;
+      if (reloaded) {
+        $("#restartName").focus();
+        $("#restart").show();
+      }
+      else {
+        $("#startName").focus();
+        $("#start").fadeIn();
+      }
       
       var socket = new io.Socket(null, {port: 80});
       socket.connect();
@@ -49,6 +59,14 @@
       engine.registerClient(gameClient);
       engine.addEventListener("snakeDead", function() {
         setTimeout(function() {
+          if (reloaded) {
+            window.location = window.location;
+          }
+          else {
+            window.location = window.location+"?"+RELOAD_STRING+"=yes";
+          }
+          
+          /*
           $("#restart").fadeIn();
           var restartName = $("#restartName");
           if (!restartName.val()) {
@@ -56,6 +74,7 @@
           }
           $("#restartName").focus();
           myPrevTitle = snakeTitles["0"];
+          */
         }, 2000);
       });
 
@@ -192,7 +211,7 @@
     </div>
   </div>
   
-  <div id="start" class="popup">
+  <div id="start" class="popup" style="display: none;">
     <div class="innerBox">
       <img src="images/title.png" width="400" height="50" title="Snake Arena"/>
       <form action="prototype_submit" method="get" accept-charset="utf-8" id="startForm">
