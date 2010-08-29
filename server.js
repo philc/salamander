@@ -92,14 +92,16 @@ var io = socket.listen(server);
 var clients = {}; // map of all clients to gameClient objects
 
 // send user data down to the client.
-setInterval(broadCastUserData, 1000);
+setInterval(broadcastUserData, 1000);
 
-function broadCastUserData() {
+function broadcastUserData() {
   var users = engine.users,
       outUsers = [];
-  for (var i = users.length - 1; i >= 0; i--)
-    if (users[i].snake)
-      outUsers.push(users[i].snake);
+  for (var i = users.length - 1; i >= 0; i--) {
+    if (users[i].snake) {
+      outUsers.push({props: users[i].props, snake: users[i].snake});
+    }
+  }
   io.broadcast(protocol.newMessage(protocol.Types.Users, outUsers));
 }
 
