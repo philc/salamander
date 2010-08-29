@@ -30,13 +30,13 @@
           var users = protocol.messageData(msg);
           var totalUsers = users.length;
           users.sort(function(a,b) {
-            return b.size - a.size;
+            return b.snake.size - a.snake.size;
           });
           
           var topFew = (users.length > 3) ? 3 : users.length;
           var output = "";
           for (var i=0; i < topFew; i++) {
-            output += ""+ users[i].snakeId + "<br/>";
+            output += ""+ users[i].props.name + "<br/>";
           }
           
           $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
@@ -75,6 +75,7 @@
 
     function startGame() {
       console.log("startGame");
+      engine.setUserProps({"name":"foobar"});
       engine.startGame();
       $(".popup").hide();
     }

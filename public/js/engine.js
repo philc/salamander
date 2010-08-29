@@ -261,6 +261,7 @@ var MessageType = {
   UPDATE: "update",
 
   // Sent from client to server
+  SET_USER_PROPS: "setUserProps",
   START_GAME: "startGame",
   REQUEST_MOVE: "requestMove",
 };
@@ -283,7 +284,7 @@ extend(ServerEngine.prototype, {
   },
 
   registerClient: function(client) {
-    var user = { "client": client, "snake": null };
+    var user = { "client": client, "snake": null, "props": null};
     this.users.push(user);
     // Register for moves from client
     client.receive = function(msg) {
@@ -309,6 +310,9 @@ extend(ServerEngine.prototype, {
         break;
       case MessageType.REQUEST_MOVE:
         user.snake.requestMove(msg.direction);
+        break;
+      case MessageType.SET_USER_PROPS:
+        user.props = msg.props;
         break;
       default:
         throw "Unrecognized message type " + msg.type;
@@ -484,6 +488,10 @@ extend(ClientEngine.prototype, {
     }
     this.totalApples += newApples.length;
   },
+  
+  setUserProps: function(newProps) {
+    this.client.send({ type: MessageType.SET_USER_PROPS, props: newProps });
+  }
 });
 
 
