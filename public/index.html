@@ -35,7 +35,8 @@
             return b.snake.size - a.snake.size;
           });
           
-          var topFew = (users.length > 3) ? 3 : users.length;
+          var maxTop = 3;
+          var topFew = (users.length > maxTop) ? maxTop : users.length;
           var output = "";
           for (var i=0; i < topFew; i++) {
             output += ""+ users[i].props.name + ": " + users[i].snake.size + "<br/>";
@@ -59,12 +60,14 @@
       engine = new ClientEngine(window.board);
       engine.registerClient(gameClient);
       engine.addEventListener("snakeDead", function() {
-        $("#restart").show();
-        var restartName = $("#restartName");
-        if (!restartName.val()) {
-          restartName.val($("#startName").val());
-        }
-        $("#restartName").focus();
+        setTimeout(function() {
+          $("#restart").show();
+          var restartName = $("#restartName");
+          if (!restartName.val()) {
+            restartName.val($("#startName").val());
+          }
+          $("#restartName").focus();
+        }, 2000);
       });
 
       // Arrow key control code
@@ -77,6 +80,7 @@
         }
       });
 
+      //screen management
       $("#pauseButton").click(function() { engine.togglePause(); });
       
       function startGameEvent(event, name) {
@@ -128,14 +132,17 @@
   <div id="board"></div>
 
   <div id="hud">
-    <button id="pauseButton">Pause</button>
-    <div id="leaderboard">
+    <div class="innerBox">
+      <!--button id="pauseButton">Pause</button-->
+      <div id="leaderboard">
+      </div>
+      <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!"/></a>
     </div>
   </div>
   
   <div id="start" class="popup">
     <div class="innerBox">
-      <h1>Welcome to MO-SNAKES-MO-PROBLEMS!</h1>
+      <img src="images/title.png" width="400" height="50" title="Snake Arena"/>
       <form action="prototype_submit" method="get" accept-charset="utf-8" id="startForm">
          Name: <input type="text" id="startName"/>
          <a class="startButton button" href="#">Start</a>
@@ -146,14 +153,15 @@
   <!--hidden by default added when needed-->
   <div id="restart" class="popup" style="display: none;">
     <div class="innerBox">
-      <h1>Oooh noooo! Wanna play again?</h1>
-      <form action="prototype_submit" method="get" accept-charset="utf-8" id="restartForm">      
+      <img src="images/title.png" width="400" height="50" title="Snake Arena"/>
+      <form action="prototype_submit" method="get" accept-charset="utf-8" id="restartForm">
+        Play Again?
         Name: <input type="text" id="restartName"/>
         <a class="restartButton button" href="#">Restart</a>
       </form>
     </div>
   </div>
   
-  <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="position: fixed; top: 5px; right: 5px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!" /></a>
+   
 </body>
 </html>

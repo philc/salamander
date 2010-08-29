@@ -1,5 +1,5 @@
 body {
-  font-family: Monaco,courier,sans-serif;
+  font-family: Monaco,Consolas,Courier,sans-serif;
   margin: 0;
 }
 
@@ -52,20 +52,22 @@ h1 {
  * Heads up display. 
  */
 #hud {
-  position: fixed;
+  position: absolute;
   right: 20px;
   width: 200px;
   height: 200px;
   top: 20px;
-  background-color: yellow;
+  background-color: white;
+  border: 0.5em solid black;
   opacity: 0.8;
+  padding: 1em;
 }
 
 /*
  * Start page
  */
 .popup {
-  position: fixed;
+  position: absolute;
   top: 100px;
   left: 100px;
   /*height: 100%;*/
@@ -74,8 +76,9 @@ h1 {
   width: 400px;
   /*height: 400px;*/
   background-color: white;
-  border: 1px solid black;
+  border: 0.5em solid black;
   text-align: center;
+  padding: 1em;
 }
 
 .popup a.button {
@@ -94,7 +97,7 @@ a.button {
   margin: 1em;
   padding: 1em;
   background-color: #eee;
-  border: 1px solid #ccc;
+  border: 1px solid #000;
   color: #333;
   text-decoration: none;
 }
@@ -107,3 +110,5 @@ a.button:hover {
 a.button:active {
   opacity: 0.8;
 }
+
+.innerBox {position: relative;}
