@@ -15,6 +15,7 @@ Function.prototype.bind = function(self) {
 EMPTY = 0;
 APPLE = 1;
 SNAKE = 2;
+OBSTACLE = 3;
 
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
@@ -100,10 +101,11 @@ Snake.prototype = {
     if (this.requestedMoves.length >= 2)
       this.requestedMoves.shift();
     this.requestedMoves.push(requestedDirection);
-    console.log("move backlog:", this.requestedMoves[0]);
-    console.log("move backlog:", this.requestedMoves[1]);
   },
 
+  /*
+   * Returns the snake's next requested move, or null if there is no valid requested move.
+   */
   popNextMove: function() {
     // iterates through the moves that were requested and discards ones which are not relevant given
     // the current state of the snake.
@@ -141,6 +143,7 @@ Snake.deserialize = function(data) {
 BOARD_WIDTH = 100;
 BOARD_HEIGHT = 60;
 DESIRED_APPLES = 10;
+OBSTACLE_COUNT = 3;
 TURN_DURATION = 250;
 
 function Engine(renderedBoard) { this.init(renderedBoard); }
@@ -170,6 +173,9 @@ Engine.prototype = {
     console.log("start");
     if (!this.isServer) // TODO HACK until we have proper syncing with the server.
       return;
+
+    this.addRandomObstacles();
+
     this.turnTimer = setInterval(function() {
       try {
         this.processTurn();
@@ -197,7 +203,7 @@ Engine.prototype = {
         continue;
       }
       var cell = this.board.get(newHead[0], newHead[1]);
-      if (cell.type == SNAKE || cell.isTombstone) {
+      if (cell.type == SNAKE || cell.isTombstone || cell.type == OBSTACLE) {
         this.killSnakeAtIndex(i);
         if (cell.segment == "head")
           // Kill the other snake at this cell if necessary
@@ -260,6 +266,31 @@ Engine.prototype = {
     } else {
       this.dispatchEvent({ type: "turnProcessed" });
     }
+  },
+
+  /*
+   * Adds obstacles to the board in random locations, but evenly distributes them.
+   */
+  addRandomObstacles: function() {
+    // Divide the board up into vertical zones and distribute the obstacles evenly across them.
+    // NOTE(philc): This is not as a good as true random placement, but we're in a rush.
+    var zoneWidth = Math.floor(BOARD_HEIGHT / OBSTACLE_COUNT);
+    for (var i = 0; i < OBSTACLE_COUNT; i++) {
+      this.addObstacleAt(
+          randomNumber(i * zoneWidth, (i + 1) * zoneWidth - 2),
+          randomNumber(2, BOARD_HEIGHT - 5));
+    }
+  },
+
+  addObstacleAt: function(x, y) {
+    console.log("Adding obstacle at", x, y);
+    // An obstacle takes up many cells (2x3 at the moment) but the upper left corner should be marked
+    // specifically, so it gets drawn/styled only once.
+    for (var i = y; i < (y + 3) ; i++) {
+      this.board.set(x, i, { type: OBSTACLE });
+      this.board.set(x + 1, i, { type: OBSTACLE });
+    }
+    this.board.set(x, y, { type: OBSTACLE, segment: "obstacleCorner" });
   },
 
   killSnakeAtIndex: function(index) {

@@ -50,6 +50,8 @@
 
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
+      addPageStyle("#board .obstacleCorner { width: " + (2 * cellSize) + "px; " +
+                   "height: " + ( 3 * cellSize) + "px; }");
       addPageStyle("#board { width: " + (BOARD_WIDTH * cellSize) + "px; height: " +
                    (BOARD_HEIGHT * cellSize) + "px; }");
 
@@ -147,7 +149,7 @@
       <h1>Oooh noooo! Wanna play again?</h1>
       <form action="prototype_submit" method="get" accept-charset="utf-8" id="restartForm">      
         Name: <input type="text" id="restartName"/>
-        <a class="retartButton button" href="#">Restart</a>
+        <a class="restartButton button" href="#">Restart</a>
       </form>
     </div>
   </div>

@@ -5,7 +5,7 @@ function RenderedBoard(width, height, cellSize, boardElement) {
   this.cellSize = cellSize;
   this.boardElement = $(boardElement);
   this.divs = this.createDivs(width, height, this.boardElement);
-  this.TYPE_TO_CLASS = ["empty", "food", "snake", "snakeHead"];
+  this.TYPE_TO_CLASS = ["empty", "food", "snake", "cactus"];
   // Cells used to render the tongue graphic for a given snake.
   this.snakeTongueCells = [];
 }
@@ -90,6 +90,7 @@ extend(RenderedBoard.prototype, {
 
     setTimeout(function() {
       jQuery.each(bodyCells, function(i, element) {
+        element.css("borderRadius", 3);
         element.animate(animationProperties,
             { easing: "linear", duration: 1200, complete: function() { $(this).remove(); }});
       });

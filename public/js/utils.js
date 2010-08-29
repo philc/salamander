@@ -9,6 +9,10 @@ Function.prototype.bind = function(self) {
   return function() { fn.apply(self, arguments); };
 }
 
+randomNumber = function(min, max) {
+  return min + Math.floor(Math.random() * (max - min));
+};
+
 /*
  * Mimicks the DOM event listener API, enabling it for plain javascript classes.
  */
@@ -35,4 +39,3 @@ EventDispatcher = {
       callbacks[i].call(null, event);
   }
 }
-
