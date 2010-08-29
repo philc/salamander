@@ -164,7 +164,8 @@
     }
     var snakeGraduations = [300,250,200,150,125,100,75,50,20,0];
     var myPrevTitle = snakeTitles["0"];
-
+    var firstMe = true;
+    
     function handleUsers(users) {
       var totalUsers = users.length;
       $("#totalPlayers").html(totalUsers);
@@ -189,13 +190,17 @@
         }
         if (me) {
           output += "You: ";
+          if (firstMe) {
+            announce(users[i].props.name);
+            firstMe = false;
+          }
           if (title !== myPrevTitle) {
             announce(title);
             myPrevTitle = title;
           }
         }
         
-        leaderboard.append('<div class="player">'+
+        leaderboard.append('<div class="player'+ (me ? " me" : '') + '">'+
           '<div class="col left">'+
             '<div class="playerColor" style="background-color: '+users[i].snake.color+'"></div>'+
           '</div>' +

@@ -178,6 +178,9 @@ h2 {
 .player {
   margin-top: 5px;
 }
+.me .middle {
+  color: #aa0000;
+}
 .player .left {
   width: 15px;
 }
