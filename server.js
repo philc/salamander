@@ -3,8 +3,12 @@ var http = require('http'),
 	fs = require('fs'),
 	sys = require('sys'),
 	socket = require('./socket_node/'),
-	Engine = require('./public/js/engine').Engine;
-	protocol = require('./public/js/protocol').protocol;
+	Engine = require('./public/js/engine').Engine,
+	protocol = require('./public/js/protocol').protocol,
+	utils = require("./public/js/utils").utils;
+
+// console.log(typeof(Function.bind));
+// console.log(typeof(utils.extend));
 
 var PUBLIC_DIR = "/public";
 
