@@ -220,6 +220,9 @@ Engine.prototype = {
       this.board.set(x, y, { type: EMPTY });
     }.bind(this));
     this.snakeChanges[snake.snakeId] = { type: SNAKE_REMOVE };
+    // Client-specific code
+    if (this.mySnake && this.mySnake.snakeId === snake.snakeId)
+      this.mySnake = null;
   },
 
   togglePause: function() {
@@ -432,6 +435,12 @@ extend(ClientEngine.prototype, {
       default:
         throw "Unrecognized message type " + msg.type;
     }
+  },
+
+  startGame: function() {
+    if (this.mySnake != null)
+      return;
+    this.client.send({ type: MessageType.START_GAME });        
   },
 
   moveSnake: function(requestedDirection) {
