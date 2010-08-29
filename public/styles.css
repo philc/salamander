@@ -7,6 +7,8 @@ body {
   /* font-family: Monaco,Consolas,Courier,sans-serif;*/
 }
 
+p { margin: 0; }
+
 h1 {
   font-size: 2em;
 }
@@ -64,20 +66,6 @@ h1 {
 .tongue { background-image: url(/images/tongue.png); }
 
 /*
- * Heads up display. 
- */
-#hud {
-  position: absolute;
-  right: 20px;
-  width: 200px;
-  top: 20px;
-  background-color: white;
-  border: 0.5em solid black;
-  opacity: 0.8;
-  padding: 1em;
-}
-
-/*
  * Start and end screen styles
  */
 .popup {
@@ -104,7 +92,7 @@ h1 {
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 999;
+  z-index: 1000;
 }
 
 .popup p { text-align: center; }
@@ -161,13 +149,27 @@ h1 {
   margin-bottom: 0px;
 }
 
-/*
- * General popup styles. We may no longer need these.
- */
 .announcement {
   position: absolute;
   z-index: 999;
   font-size: 0.1em;
+}
+
+/*
+ * Leaderboard
+ */
+#hud {
+  position: absolute;
+  right: 10px;
+  width: 200px;
+  top: 10px;
+  background-color: #FFE6BF;
+  border: 5px solid #CC9342;
+  opacity: 0.8;
+  padding: 6px;
+  /* The heads up display should be on top of the start screen popup; otherwise you cannot click the Vote
+     link. */
+  z-index: 1100;
 }
 
 h2 {
@@ -175,22 +177,31 @@ h2 {
   margin: 0px;
   text-align: center;
 }
-.player {
-  margin-top: 5px;
+
+#leaderboard { margin-bottom: 15px; }
+p#voteButton {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 15px;
 }
+#voteButton img {
+  margin-top: -6px;
+}
+
 .me .middle {
-  color: #aa0000;
+  color: #3495f8;
 }
 .player .left {
   width: 15px;
 }
+.player { margin-top: 5px; }
+.player .left { width: 15px; }
 .player .middle {
-  width: 130px;
+  width: 140px;
   margin-left: 5px;
 }
-.player .right {
-  width: 50px;
-}
+.player .right { width: 40px; }
+
 .player .playerColor {
   width: 15px;
   height: 15px;
@@ -199,7 +210,5 @@ h2 {
   font-weight: bold;
   font-size: 0.8em;
 }
-.player .playerName {
-}
-.player .col {float: left;}
-.player .clear {clear: both;}
+.player .col { float: left; }
+.player .clear { clear: both; }
