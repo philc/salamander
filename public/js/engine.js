@@ -56,16 +56,17 @@ Board.prototype = {
 };
 
 
-function Snake(snakeId, articulations, size, desiredSize, requestedMove) {
-  this.init(snakeId, articulations, size, desiredSize, requestedMove);
+function Snake(snakeId, articulations, size, desiredSize, requestedMoves) {
+  this.init(snakeId, articulations, size, desiredSize, requestedMoves);
 }
+
 Snake.prototype = {
-  init: function(snakeId, articulations, size, desiredSize, requestedMove) {
+  init: function(snakeId, articulations, size, desiredSize, requestedMoves) {
     this.snakeId = snakeId;
     this.articulations = articulations;
     this.size = size;
     this.desiredSize = desiredSize;
-    this.requestedMove = requestedMove;
+    this.requestedMoves = requestedMoves;
     this.deathCallbacks = [];
   },
 
@@ -96,10 +97,24 @@ Snake.prototype = {
 
   // Returns whether or not the move is possible
   requestMove: function(requestedDirection) {
-    if (this.isMovePossible(requestedDirection))
-      this.requestedMove = requestedDirection;
+    if (this.requestedMoves.length >= 2)
+      this.requestedMoves.shift();
+    this.requestedMoves.push(requestedDirection);
+    console.log("move backlog:", this.requestedMoves[0]);
+    console.log("move backlog:", this.requestedMoves[1]);
   },
-  
+
+  popNextMove: function() {
+    // iterates through the moves that were requested and discards ones which are not relevant given
+    // the current state of the snake.
+    while (this.requestedMoves.length > 0) {
+      var move = this.requestedMoves.shift();
+      if (this.isMovePossible(move))
+        return move;
+    }
+    return null;
+  },
+
   addDeathCallback: function(fun) {
     this.deathCallbacks.push(fun);
   },
@@ -117,7 +132,7 @@ Snake.prototype = {
 Snake.deserialize = function(data) {
   var object = eval("(" + data + ")");
   var snake = new Snake(object.snakeId, object.articulations, object.size,
-                        object.desiredSize, object.requestedMove);
+                        object.desiredSize, object.requestedMoves);
   return snake;
 };
 
@@ -164,10 +179,11 @@ Engine.prototype = {
     this.processedMoves = {};
     for (var i = 0; i < this.snakes.length; i++) {
       var snake = this.snakes[i];
-      if (snake.requestedMove != null)
-        this.processedMoves[snake.snakeId] = snake.requestedMove;
+      var requestedMove = snake.popNextMove();
+      if (requestedMove)
+        this.processedMoves[snake.snakeId] = requestedMove;
       // Move snake's head
-      var headDirection = snake.requestedMove || snake.computeHeadDirection();
+      var headDirection = requestedMove || snake.computeHeadDirection();
       var oldHead = snake.head();
       var newHead = [snake.head()[0] + headDirection[0],
                      snake.head()[1] + headDirection[1]];
@@ -188,14 +204,13 @@ Engine.prototype = {
         this.board.set(oldHead[0], oldHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "body" });
         this.board.set(newHead[0], newHead[1], { type: SNAKE, snakeId: snake.snakeId, segment: "head",
             direction: GridUtils.vectorToString(headDirection) });
-        if (snake.requestedMove) { // The snake has turned
+        if (requestedMove) { // The snake has turned
           snake.articulations = [newHead].concat(snake.articulations);
         }
         else { // The snake is going straight
           snake.articulations[0] = newHead;
         }
       }
-      snake.requestedMove = null;
 
       // Move snake's tail
       if (snake.desiredSize > snake.size) {
@@ -368,7 +383,7 @@ extend(ServerEngine.prototype, {
       }.bind(this));
     }
 
-    var snake = new Snake(snakeId, [head, tail], SNAKE_START_SIZE, SNAKE_START_SIZE, null);
+    var snake = new Snake(snakeId, [head, tail], SNAKE_START_SIZE, SNAKE_START_SIZE, []);
     this.snakes.push(snake);
     this.addSnakeToBoard(snake);
     this.snakeChanges[snakeId] = { type: SNAKE_ADDITION, snake: snake.serialize() };
@@ -472,7 +487,7 @@ extend(ClientEngine.prototype, {
   },
 
   moveSnake: function(requestedDirection) {
-    if (this.mySnake == null || !this.mySnake.isMovePossible(requestedDirection))
+    if (this.mySnake == null)
       return;
     // TODO Put back in this if statement when we want to have client seeking
     // if (this.mySnake.requestMove(requestedDirection))
