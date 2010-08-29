@@ -5,7 +5,18 @@ APPLE = 1;
 SNAKE = 2;
 OBSTACLE = 3;
 
-var COLORS = ["#abc","#81f","#123","#1e1","#59f", "#9b6", "#b38", "#a3c"];
+var COLORS = [
+    "#3378E6", // light blue
+    "#1B4280", // dark blue
+    "#E3844C", // peach
+    "#B65817", // deep orange
+    "#6FB29A", // sea green
+    "#2BB14A", // sprint green
+    "#AE5F8E", // pink
+    "#9E0B01", // deep red
+    "#000000", // black
+    "#6A67A3" // lavender
+    ];
 
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
