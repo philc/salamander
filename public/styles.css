@@ -36,4 +36,24 @@
   width: 200px;
   height: 200px;
   top: 20px;
+  background-color: yellow;
+  opacity: 0.8;
+}
+
+/*
+ * Start page
+ */
+#start {
+  position: fixed;
+  top: 100px;
+  left: 100px;
+  height: 100%;
+  z-index: 999;
+  opacity: 0.8;
+  margin-left: auto;
+  margin-right: auto;
+  width: 400px;
+  height: 200px;
+  background-color: white;
+  border: 1px solid black;
 }

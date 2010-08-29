@@ -21,7 +21,6 @@
       engine = new ClientEngine(window.board);
       engine.addSnake("snake1", [5, 1], [1, 1]);
       engine.addSnake("snake2", [0, 5], [0, 0]);
-      engine.start();
 
       // Arrow key control code
       KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // Left, Up, Right, Down
@@ -32,6 +31,7 @@
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });
+      $("#startButton").click(function() { $("#start").hide(); engine.start(); })
     });
 
     function addPageStyle(css, head) {
@@ -52,6 +52,13 @@
 
   <div id="hud">
     <button id="pauseButton">Pause</button>
+  </div>
+  
+  <div id="start">
+      <div class="innerBox">
+      <h1>Welcome to MO-SNAKES-MO-PROBLEMS!</h1>
+      <button id="startButton">Start</button>
+    </div>
   </div>
 </body>
 </html>
