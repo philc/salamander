@@ -95,7 +95,7 @@ setInterval(function() {
   //console.log(engine.snakes);
   var users = engine.users,
     outUsers = [];
-  console.log(users.length);
+  //console.log(users.length);
   for (var i = users.length - 1; i >= 0; i--){
     if (users[i].snake) {
       outUsers.push(users[i].snake);

@@ -28,15 +28,18 @@
         else if (type === protocol.Types.Users) {
           var users = protocol.messageData(msg);
           var totalUsers = users.length;
-          //console.log(typeof(users));
-          //console.log(users);
           users.sort(function(a,b) {
-            return a.size - b.size;
+            return b.size - a.size;
           });
           
-          console.log(users);
+          var topFew = (users.length > 3) ? 3 : users.length;
+          var output = "";
+          for (var i=0; i < topFew; i++) {
+            output += ""+ users[i].snakeId + "<br/>";
+          }
+          console.log(output);
           
-          //$("#leaderboard").empty().append(protocol.messageData(msg).length + "<br/>" + users.slice(0,3));
+          $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
         }
       });
 
