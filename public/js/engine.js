@@ -232,9 +232,10 @@ Engine.prototype = {
     } else {
       this.start();
     }
-  },
-
+  }
 };
+
+extend(Engine.prototype, EventDispatcher);
 
 
 var MessageType = {
