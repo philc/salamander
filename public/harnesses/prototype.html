@@ -31,7 +31,11 @@
       });
 
       $("#pauseButton").click(function() { engine.togglePause(); });
-      $("#startButton").click(function() { $("#start").hide(); engine.start(); })
+      $(".startButton").click(function(event) {
+         $("#start").hide(); 
+         engine.start(); 
+         event.preventDefault(); 
+      });
     });
 
     function addPageStyle(css, head) {
@@ -57,7 +61,7 @@
   <div id="start">
       <div class="innerBox">
       <h1>Welcome to MO-SNAKES-MO-PROBLEMS!</h1>
-      <button id="startButton">Start</button>
+      <a class="startButton button" href="#">Start</a>
     </div>
   </div>
 </body>
