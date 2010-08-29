@@ -51,14 +51,16 @@ Board.prototype = {
 };
 
 
-function Snake() { this.init(); }
+function Snake(snakeId, articulations, size, desiredSize, requestedMove) {
+  this.init(snakeId, articulations, size, desiredSize, requestedMove);
+}
 Snake.prototype = {
-  init: function() {
-    this.snakeId = null;
-    this.articulations = [];
-    this.size = 10;
-    this.desiredSize = this.size;
-    this.requestedMove = null;
+  init: function(snakeId, articulations, size, desiredSize, requestedMove) {
+    this.snakeId = snakeId;
+    this.articulations = articulations;
+    this.size = size;
+    this.desiredSize = desiredSize;
+    this.requestedMove = requestedMove;
   },
 
   head: function() { return this.articulations[0]; },
@@ -94,14 +96,10 @@ Snake.prototype = {
       requestedMove: this.requestedMove
     };
   }
-};
+}
 Snake.deserialize = function(data) {
-  var snake = new Snake();
-  this.snakeId = data.snakeId;
-  this.articulations = data.articulations;
-  this.size = data.size;
-  this.desiredSize = data.desiredSize;
-  this.requestedMove = data.requestedMove;
+  var snake = new Snake(data.snakeId, data.articulations, data.size,
+                        data.desiredSize, data.requestedMove);
   return snake;
 };
 
