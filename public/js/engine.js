@@ -328,7 +328,10 @@ extend(ServerEngine.prototype, {
   },
 
   unregisterClient: function(client) {
-    // TODO call removeUser
+    for (var i = 0; i < this.users.length; i++) {
+      if (this.users[i].client == client)
+        this.removeUser(this.users[i]);
+    }
   },
 
   processMessage: function(msg, user) {
@@ -537,8 +540,11 @@ extend(ServerEngine.prototype, {
   },
 
   removeUser: function(user) {
-    // TODO
-  }
+    for (var i = 0; i < this.users.length; i++) {
+      if (this.users[i] == user)
+        this.users.splice(i, 1);
+    }
+  },
 });
 
 
