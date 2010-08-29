@@ -5,7 +5,7 @@ function RenderedBoard(width, height, cellSize, boardElement) {
   this.cellSize = cellSize;
   this.boardElement = $(boardElement);
   this.divs = this.createDivs(width, height, this.boardElement);
-  this.TYPE_TO_CLASS = ["empty", "apple", "snake", "snakeHead"];
+  this.TYPE_TO_CLASS = ["empty", "food", "snake", "snakeHead"];
 }
 
 extend(RenderedBoard.prototype, {

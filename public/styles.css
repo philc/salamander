@@ -21,9 +21,7 @@ h1 {
 #board div {
   position: absolute;
 }
-.apple {
-  background-color: red;
-}
+.food { background-image: url(/images/food.png); }
 .snake1 { background-color: #87071c; }
 .snake2 { background-color: #3280ba; }
 .snake3 { background-color: #ba5535; }
