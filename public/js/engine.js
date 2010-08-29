@@ -530,7 +530,7 @@ extend(ServerEngine.prototype, {
   },
 
   removeUser: function(user) {
-    for (var i = 0; i < this.users; i++) {
+    for (var i = 0; i < this.users.length; i++) {
       if (this.users[i] == user)
         this.users.splice(i, 1);
     }
