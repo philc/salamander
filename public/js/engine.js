@@ -256,7 +256,6 @@ extend(Engine.prototype, EventDispatcher);
 var MessageType = {
   // Sent from server to client
   SETUP: "setup",
-  GAME_STARTED: "gameStarted",
   UPDATE: "update",
 
   // Sent from client to server
@@ -305,7 +304,6 @@ extend(ServerEngine.prototype, {
         user.snake.addDeathCallback(function(snake){
           user.snake = null;
         });
-        user.client.send({ type: MessageType.GAME_STARTED, snake: user.snake.serialize() });
         break;
       case MessageType.REQUEST_MOVE:
         if (user.snake != null)
@@ -428,13 +426,6 @@ extend(ClientEngine.prototype, {
           this.snakes.push(Snake.deserialize(msg.snakes[i]));
         }
         this.start();
-        break;
-      case MessageType.GAME_STARTED:
-        // TODO remove this as all the information is in UPDATE anyway
-        // var snake = Snake.deserialize(msg.snake);
-        // this.snakes.push(snake);
-        // this.addSnakeToBoard(snake);
-        // this.mySnake = snake;
         break;
       case MessageType.UPDATE:
         // TODO Check for conflicts
