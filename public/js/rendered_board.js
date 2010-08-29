@@ -10,7 +10,7 @@ function RenderedBoard(width, height, cellSize, boardElement) {
 
 extend(RenderedBoard.prototype, {
   set: function(x, y, cell) {
-    var classes = [this.TYPE_TO_CLASS[cell.type], cell.snakeId];
+    var classes = [this.TYPE_TO_CLASS[cell.type], cell.snakeId ? "snake1" : null];// TODO HACK! cell.snakeId];
     if (cell.direction)
       classes.push(cell.direction);
     if (cell.segment)
