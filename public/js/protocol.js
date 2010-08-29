@@ -2,8 +2,8 @@ var protocol = {};
 
 protocol.Types = {
   GameState:0,
-  LeaderBoard:1,
-  Test:2
+  Users:1,
+  Snakes:2
 };
 
 protocol.newMessage = function(type,data) {

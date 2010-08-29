@@ -21,10 +21,23 @@
       socket.connect();
       var gameClient = new protocol.GameClient(socket);
       socket.on('message', function(msg){
-          var type = protocol.messageType(msg);
-          if (type === protocol.Types.GameState) {
-              gameClient.receive(protocol.messageData(msg));
-          }
+        var type = protocol.messageType(msg);
+        if (type === protocol.Types.GameState) {
+          gameClient.receive(protocol.messageData(msg));
+        }
+        else if (type === protocol.Types.Users) {
+          var users = protocol.messageData(msg);
+          var totalUsers = users.length;
+          //console.log(typeof(users));
+          //console.log(users);
+          users.sort(function(a,b) {
+            return a.size - b.size;
+          });
+          
+          console.log(users);
+          
+          //$("#leaderboard").empty().append(protocol.messageData(msg).length + "<br/>" + users.slice(0,3));
+        }
       });
 
       var autoStart = false;//dev
@@ -80,6 +93,8 @@
 
   <div id="hud">
     <button id="pauseButton">Pause</button>
+    <div id="leaderboard">
+    </div>
   </div>
   
   <div id="start" class="popup">
