@@ -1,6 +1,7 @@
 body {
   font-family: Monaco,Consolas,Courier,sans-serif;
   margin: 0;
+  background-image: url("/images/desert_dark.png");
 }
 
 h1 {
@@ -17,6 +18,8 @@ h1 {
   border: 1px solid #ddd;
   position: relative;
   background: url(/images/desert_light.png);
+  border-right: 4px solid #f8dd8d;
+  border-bottom: 4px solid #f8dd8d;
 }
 
 /*
