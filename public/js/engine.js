@@ -178,8 +178,7 @@ Engine.prototype = {
       // Move snake's head
       var headDirection = requestedMove || snake.computeHeadDirection();
       var oldHead = snake.head();
-      var newHead = [snake.head()[0] + headDirection[0],
-                     snake.head()[1] + headDirection[1]];
+      var newHead = GridUtils.addVectorToPoint(snake.head(), headDirection);
       if (GridUtils.outOfBounds(newHead, BOARD_WIDTH, BOARD_HEIGHT)) {
         this.killSnakeAtIndex(i);
         continue;
@@ -229,7 +228,7 @@ Engine.prototype = {
         var oldTail = snake.articulations[len-1];
         this.board.set(oldTail[0], oldTail[1], { type: EMPTY });
         var tailDirection = snake.computeTailDirection();
-        var newTail = [oldTail[0] + tailDirection[0], oldTail[1] + tailDirection[1]];
+        var newTail = GridUtils.addVectorToPoint(oldTail, tailDirection);
         if (newTail[0] == snake.articulations[len-2][0] && newTail[1] == snake.articulations[len-2][1]) {
           // Remove the last articulation
           snake.articulations.splice(len-1, 1);
@@ -561,7 +560,7 @@ extend(ClientEngine.prototype, {
   },
 
   unregisterClient: function(client) {
-    // TODO
+    // This should never get called
   },
 
   processMessage: function(msg) {
@@ -650,7 +649,6 @@ var GridUtils = {
     return [dx == 0 ? dx : dx / Math.abs(dx), dy == 0 ? dy : dy / Math.abs(dy)];
   },
 
-  // TODO use this in processTurn
   addVectorToPoint: function(point, vector) {
     return [point[0] + vector[0], point[1] + vector[1]];
   },
