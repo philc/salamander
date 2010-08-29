@@ -50,6 +50,8 @@
 
       var cellSize = 10;
       addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
+      addPageStyle("#board .obstacleCorner { width: " + (2 * cellSize) + "px; " +
+          "height: " + ( 3 * cellSize) + "px; }");
 
       board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
       engine = new ClientEngine(window.board);
