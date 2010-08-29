@@ -5,7 +5,7 @@ APPLE = 1;
 SNAKE = 2;
 OBSTACLE = 3;
 
-var COLORS = ["#abc","#81h","#123","#1e1","#59f", "#9b6", "#b38", "#a3c"];
+var COLORS = ["#abc","#81f","#123","#1e1","#59f", "#9b6", "#b38", "#a3c"];
 
 function Board(width, height, renderedBoard) { this.init(width, height, renderedBoard); }
 Board.prototype = {
@@ -180,7 +180,7 @@ Engine.prototype = {
     GridUtils.iterateAlongLine(head, tail, function(x, y) {
       if (this.board.get(x, y).type != EMPTY)
         throw "Trying to add snake to occupied cell";
-      this.board.set(x, y, {type: SNAKE, snakeId: snake.snakeId});
+      this.board.set(x, y, {type: SNAKE, snakeId: snake.snakeId, color: snake.color});
     }.bind(this));
   },
 
