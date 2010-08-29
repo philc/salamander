@@ -1,15 +1,157 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>Salamander</title>
+  <title>Salamander</title>
+
+  <script type="text/javascript" charset="utf-8">
+      var exports = {};
+  </script>
+  <script src="/js/utils.js"></script>
+  <script type="text/javascript" src="/js/socket/socket.io.js"></script>
+  <script type="text/javascript" src="/js/protocol.js"></script>
+  <script src="/js/jquery-1.4.2.js"></script>
+  <script src="/js/engine.js"></script>
+  <script src="/js/rendered_board.js"></script>
+  <link rel="stylesheet" href="/styles.css" type="text/css">
+
+  <script>
+    io.setPath('/js/socket/');
+
+    $(document).ready(function() {
+      $("#startName").focus();
+      
+      var socket = new io.Socket(null, {port: 80});
+      socket.connect();
+      var gameClient = new protocol.GameClient(socket);
+      socket.on('message', function(msg){
+        var type = protocol.messageType(msg);
+        if (type === protocol.Types.GameState) {
+          gameClient.receive(protocol.messageData(msg));
+        }
+        else if (type === protocol.Types.Users) {
+          var users = protocol.messageData(msg);
+          var totalUsers = users.length;
+          users.sort(function(a,b) {
+            return b.snake.size - a.snake.size;
+          });
+          
+          var topFew = (users.length > 3) ? 3 : users.length;
+          var output = "";
+          for (var i=0; i < topFew; i++) {
+            output += ""+ users[i].props.name + ": " + users[i].snake.size + "<br/>";
+          }
+          
+          $("#leaderboard").empty().append(totalUsers + " Users<br/>Top Players:<br/>" + output);
+        }
+      });
+
+      // Used is used for development to skip the start screen.
+      var autoStart = document.location.toString().indexOf("autostart") >= 0;
+
+      var cellSize = 10;
+      addPageStyle("#board div { width: " + cellSize + "px; height: " + cellSize + "px; }");
+      addPageStyle("#board { width: " + (BOARD_WIDTH * cellSize) + "px; height: " +
+                   (BOARD_HEIGHT * cellSize) + "px; }");
+
+      board = new RenderedBoard(BOARD_WIDTH, BOARD_HEIGHT, cellSize, $("#board"));
+      engine = new ClientEngine(window.board);
+      engine.registerClient(gameClient);
+      engine.addEventListener("snakeDead", function() {
+        $("#restart").show();
+        var restartName = $("#restartName");
+        if (!restartName.val()) {
+          restartName.val($("#startName").val());
+        }
+        $("#restartName").focus();
+      });
+
+      // Arrow key control code
+      KEYCODE_TO_DIRECTION = { 37: [-1,0], 38: [0,-1], 39: [1,0], 40: [0,1] }; // Left, Up, Right, Down
+      $(document).keydown(function(e) {
+        direction = KEYCODE_TO_DIRECTION[e.keyCode];
+        if (direction) {
+          engine.moveSnake(direction);
+          e.preventDefault();
+        }
+      });
+
+      $("#pauseButton").click(function() { engine.togglePause(); });
+      
+      function startGameEvent(event, name) {
+        if (!autoStart) {
+          startGame(name);
+        }
+        event.preventDefault();
+      }
+      
+      $("#startForm").submit(function(event) {
+        startGameEvent(event, $("#startName").val());
+      });
+      $("#restartForm").submit(function(event) {
+        startGameEvent(event, $("#restartName").val());
+      });
+      $(".startButton").click(function(event) {
+        $("#startForm").submit();
+        event.preventDefault();
+      });
+      $(".restartButton").click(function(event) {
+        $("#restartForm").submit();
+        event.preventDefault();
+      })
+      
+      if (autoStart) { startGame((new Date()).getTime()+""); }
+    });
+
+    function startGame(name) {
+      console.log("startGame");
+      engine.setUserProps({"name":name});
+      engine.startGame();
+      $(".popup").hide();
+    }
+
+    function addPageStyle(css, head) {
+      var style;
+      head = head || document.getElementsByTagName("head")[0];
+      style = document.createElement("style");
+      style.type = "text/css";
+      style.appendChild(document.createTextNode(css));
+      head.appendChild(style);
+      return style;
+    }
+  </script>
+
 </head>
 
 <body>
-    <h1>The Salamander has been let loose</h1>
-    <img src="images/salamander.gif"/>
-    <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="position: fixed; top: 5px; right: 5px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!" /></a>
-</body>
+  <div id="board"></div>
 
+  <div id="hud">
+    <button id="pauseButton">Pause</button>
+    <div id="leaderboard">
+    </div>
+  </div>
+  
+  <div id="start" class="popup">
+    <div class="innerBox">
+      <h1>Welcome to MO-SNAKES-MO-PROBLEMS!</h1>
+      <form action="prototype_submit" method="get" accept-charset="utf-8" id="startForm">
+         Name: <input type="text" id="startName"/>
+         <a class="startButton button" href="#">Start</a>
+      </form>
+    </div>
+  </div>
+  
+  <!--hidden by default added when needed-->
+  <div id="restart" class="popup" style="display: none;">
+    <div class="innerBox">
+      <h1>Oooh noooo! Wanna play again?</h1>
+      <form action="prototype_submit" method="get" accept-charset="utf-8" id="restartForm">      
+        Name: <input type="text" id="restartName"/>
+        <a class="retartButton button" href="#">Restart</a>
+      </form>
+    </div>
+  </div>
+  
+  <a href="http://nodeknockout.com/teams/salamander" target="nko" title="Help me win Node.js KO!"><img style="position: fixed; top: 5px; right: 5px; border: 0px;" src="http://nodeknockout.com/images/voteko.png" alt="Help me win Node.js KO!" /></a>
+</body>
 </html>
