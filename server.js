@@ -116,7 +116,12 @@ io.on('connection', function(client){
   client.on('message', function(message){
     var type = protocol.messageType(message);
     if (type === protocol.Types.GameState) {
-      clients[client.sessionId].receive(protocol.messageData(message));
+      try {
+        clients[client.sessionId].receive(protocol.messageData(message)); 
+      }
+      catch(e) {
+        console.log("Swollowing Exception: "+e);
+      }
     }
     // else {
     //
