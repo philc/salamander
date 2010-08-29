@@ -140,14 +140,17 @@ Snake.randomName = function() {
 }
 Snake.colorIndex = 0;
 Snake.randomColor = function() {
+  var color;
   if (Snake.colorIndex < COLORS.length) {
-    return COLORS[Snake.colorIndex++];
+    color = COLORS[Snake.colorIndex];
+    Snake.colorIndex++;
   }
   else {
     Snake.colorIndex = 0;
-    return COLORS[Snake.colorIndex];
+    color = COLORS[Snake.colorIndex];
   }
-
+  console.log(color);
+  return color;
 }
 
 
