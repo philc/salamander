@@ -162,9 +162,7 @@
       var size = 0;
       var title = "";
       for (var i=0; i < topFew; i++) {
-        if (engine.mySnake) {
-          me = (engine.mySnake.snakeId === users[i].snake.snakeId);
-        }
+        me = engine.mySnake && (engine.mySnake.snakeId === users[i].snake.snakeId);
         size = users[i].snake.size;
         for (var j = 0; j < snakeGraduations.length; j++){
           if (size >= snakeGraduations[j]) {
